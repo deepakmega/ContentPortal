@@ -53,7 +53,7 @@ var MainScreen = React.createClass({
             underlayColor='#ccc'
             onPress={this.updatePostNext}
           >
-            <Text style={styles.buttonText}>Next Possdfsdft</Text>
+            <Text style={styles.buttonText}>Next Post</Text>
           </TouchableHighlight>
         </View>
       </View>
