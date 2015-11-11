@@ -11,7 +11,7 @@ var INITIAL_DATA = [
 var TOTAL_POST_COUNT = 0;
 var CURRENT_INDEX = 0;
 
-var REQUEST_URL = 'http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts';
+var REQUEST_URL = 'http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts&count=2';
 
 var React = require('react-native');
 var {
@@ -21,40 +21,45 @@ var {
   View,
   TouchableHighlight,
 } = React;
+var ViewPager = require('react-native-viewpager');
+var ds = new ViewPager.DataSource({
+      pageHasChanged: (p1, p2) => p1 !== p2,
+    });
 
 var MainScreen = React.createClass({
   getInitialState: function() {
+    
     return {
       posts: INITIAL_DATA,
-      post: null,
+      post: false,
+      dataSource : ds.cloneWithPages(INITIAL_DATA),
     };
   },
   render: function() {
     if ( !this.state.post ) {
       return this.renderLoadingView();
     }
-    return this.renderPost();
+    return (
+      <ViewPager
+          style = {this.props.style}
+          dataSource = {this.state.dataSource}
+          renderPage = {this.renderPost}
+          isLoop = {false}
+          autoPlay = {false}/>
+    );
   },
-  renderPost: function() {
+  renderPost: function(data: Object,
+    pageID: number|string) {
     return (
       <View style={styles.container}>
-        <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: this.state.post.image}} />
+        <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: data.attachments[0].url}} />
         <View style={styles.textContainer}>
           <Text style={styles.title}>
-            {this.state.post.title}
+            {data.title}
           </Text>
           <Text style={styles.text}>
-            {this.state.post.content}
+            {data.custom_fields.content[0]}
           </Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableHighlight
-            style={styles.button}
-            underlayColor='#ccc'
-            onPress={this.updatePostNext}
-          >
-            <Text style={styles.buttonText}>Next Post</Text>
-          </TouchableHighlight>
         </View>
       </View>
     );
@@ -68,10 +73,11 @@ var MainScreen = React.createClass({
       .then((responseData) => {
           this.setState({
               //post: { title: responseData.posts[1].title, content: responseData.posts[1].custom_fields.content[0], image: responseData.posts[1].attachments[0].url },
-              posts: responseData.posts,
+              //posts: responseData.posts,
+              dataSource: ds.cloneWithPages(responseData.posts),
           }, function(){
             TOTAL_POST_COUNT = responseData.count;
-            this.updatePostNext();
+            this.setState({post: true},);
           });
       })
       .done();
@@ -84,18 +90,6 @@ var MainScreen = React.createClass({
         </Text>
       </View>
     );
-  },
-  updatePostNext: function() {
-      
-      if(CURRENT_INDEX >= TOTAL_POST_COUNT)
-      {
-            CURRENT_INDEX=0;
-      }
-
-      this.setState({
-              post: { title: this.state.posts[CURRENT_INDEX].title, content: this.state.posts[CURRENT_INDEX].custom_fields.content[0], image: this.state.posts[CURRENT_INDEX].attachments[0].url },
-          });
-      CURRENT_INDEX ++;
   },
 });
 
