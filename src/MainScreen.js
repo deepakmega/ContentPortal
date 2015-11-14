@@ -11,7 +11,7 @@ var INITIAL_DATA = [
 var TOTAL_POST_COUNT = 0;
 var CURRENT_INDEX = 0;
 
-var REQUEST_URL = 'http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts&count=2';
+var REQUEST_URL = 'http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts&count=3';
 
 var React = require('react-native');
 var {
