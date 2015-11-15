@@ -135,6 +135,9 @@ var styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',    
     backgroundColor: '#FFFFFF',
+    borderWidth: 2,
+    borderRadius: 8,
+    borderColor: '#000000',
   },
   textContainer: {
     flex: 1,
