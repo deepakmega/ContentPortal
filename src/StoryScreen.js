@@ -27,6 +27,7 @@ var StoryScreen = React.createClass({
   },
   componentDidMount: function() {
     //this.fetchStroyDetail();
+    console.log("component mounted");
 
   },
   fetchStroyDetail: function() {

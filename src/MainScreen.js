@@ -19,6 +19,7 @@ var {
   StyleSheet,
   Text,
   View,
+  Platform,
   TouchableHighlight,
   TouchableOpacity,
 } = React;
@@ -99,19 +100,19 @@ var MainScreen = React.createClass({
   },
   selectStory: function(story: Object){
     story.read = true;
-    // if (Platform.OS === 'ios') {
-    //   this.props.navigator.push({
-    //     title: story.title,
-    //     component: StoryScreen,
-    //     passProps: {story},
-    //   });
-    // } else {
+     // if (Platform.OS === 'ios') {
+     //   this.props.navigator.push({
+     //     title: story.title,
+     //     component: StoryScreen,
+     //     passProps: {story},
+     //   });
+     // } else {
       this.props.navigator.push({
         title: story.title,
         name: 'story',
         story: story,
       });
-    // }
+     //}
   },
   findImageAttachment : function(id: number, attachments: Array<Object>){
     var i = null;
