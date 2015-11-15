@@ -11,7 +11,7 @@ var INITIAL_DATA = [
 var TOTAL_POST_COUNT = 0;
 var CURRENT_INDEX = 0;
 
-var REQUEST_URL = 'http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts&count=3';
+var REQUEST_URL = 'http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts&count=50';
 
 var React = require('react-native');
 var {
@@ -20,8 +20,12 @@ var {
   Text,
   View,
   TouchableHighlight,
+  TouchableOpacity,
 } = React;
+
 var ViewPager = require('react-native-viewpager');
+var StoryScreen = require('./StoryScreen');
+
 var ds = new ViewPager.DataSource({
       pageHasChanged: (p1, p2) => p1 !== p2,
     });
@@ -48,20 +52,22 @@ var MainScreen = React.createClass({
           autoPlay = {false}/>
     );
   },
-  renderPost: function(data: Object,
+  renderPost: function(story: Object,
     pageID: number|string) {
     return (
-      <View style={styles.container}>
-        <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: data.attachments[0].url}} />
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>
-            {data.title}
-          </Text>
-          <Text style={styles.text}>
-            {data.custom_fields.content[0]}
-          </Text>
+      <TouchableOpacity style={{flex: 1}} onPress={() => {this.selectStory(story)}}>
+        <View style={styles.container}>
+          <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} />
+          <View style={styles.textContainer}>
+            <Text style={styles.title}>
+              {story.title}
+            </Text>
+            <Text style={styles.text}>
+              {story.custom_fields.content[0]}
+            </Text>
+          </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   },
   componentDidMount: function() {
@@ -90,6 +96,32 @@ var MainScreen = React.createClass({
         </Text>
       </View>
     );
+  },
+  selectStory: function(story: Object){
+    story.read = true;
+    // if (Platform.OS === 'ios') {
+    //   this.props.navigator.push({
+    //     title: story.title,
+    //     component: StoryScreen,
+    //     passProps: {story},
+    //   });
+    // } else {
+      this.props.navigator.push({
+        title: story.title,
+        name: 'story',
+        story: story,
+      });
+    // }
+  },
+  findImageAttachment : function(id: number, attachments: Array<Object>){
+    var i = null;
+    for (i = 0; attachments.length > i; i += 1) {
+        if (attachments[i].id === parseInt(id)) {
+            return attachments[i].url;
+        }
+    }
+     
+    return attachments[0].url;
   },
 });
 
@@ -139,6 +171,7 @@ var styles = StyleSheet.create({
   image: {
     margin:2,
     flex: 1, height: 200,
+    borderRadius: 4
   }
 });
 
