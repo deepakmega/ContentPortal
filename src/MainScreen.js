@@ -44,12 +44,14 @@ var MainScreen = React.createClass({
       return this.renderLoadingView();
     }
     return (
-      <ViewPager
-          style = {this.props.style}
-          dataSource = {this.state.dataSource}
-          renderPage = {this.renderPost}
-          isLoop = {false}
-          autoPlay = {false}/>
+      <View style = {styles.backContainer}>
+        <ViewPager
+            style = {this.props.style}
+            dataSource = {this.state.dataSource}
+            renderPage = {this.renderPost}
+            isLoop = {false}
+            autoPlay = {false}/>
+      </View>
     );
   },
   renderPost: function(story: Object,
@@ -130,10 +132,18 @@ var Dimensions = require('Dimensions');
 var windowSize = Dimensions.get('window');
 
 var styles = StyleSheet.create({
+  backContainer: {
+    flex: 1,
+    backgroundColor: '#000000',
+  },
   container: {
     flex: 1,
     justifyContent: 'center',    
     backgroundColor: '#FFFFFF',
+    borderStyle: 'solid',
+    borderWidth: 2,
+    borderColor: 'black',
+    borderRadius: 5,
   },
   textContainer: {
     flex: 1,
@@ -171,7 +181,7 @@ var styles = StyleSheet.create({
   image: {
     margin:2,
     flex: 1, height: 200,
-    borderRadius: 4
+    borderRadius: 2
   }
 });
 

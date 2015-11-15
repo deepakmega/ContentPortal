@@ -1375,20 +1375,11 @@ throw new TypeError(
 
 var index=findIndex.call(this,predicate,context);
 return index === -1?undefined:this[index];}});}})();
-__d('ContentPortal/index.android.js',["react-native/Libraries/react-native/react-native.js","Dimensions"],function(global, require, module, exports) {  'use strict';
+__d('ContentPortal/index.android.js',["react-native/Libraries/react-native/react-native.js","ContentPortal/src/MainScreen.js","react-timer-mixin/TimerMixin.js","ContentPortal/src/StoryScreen.js"],function(global, require, module, exports) {  'use strict';
 
 
 
 
-
-var INITIAL_DATA=[
-{title:'Deep Thought #1',content:"If there's no 'there' there, where is it and what's there?"}];
-
-
-var TOTAL_POST_COUNT=0;
-var CURRENT_INDEX=0;
-
-var REQUEST_URL='http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts';
 
 var React=require('react-native/Libraries/react-native/react-native.js');var 
 
@@ -1398,134 +1389,63 @@ AppRegistry=
 
 
 
-React.AppRegistry;var Image=React.Image;var StyleSheet=React.StyleSheet;var Text=React.Text;var View=React.View;var TouchableHighlight=React.TouchableHighlight;
+React.AppRegistry;var BackAndroid=React.BackAndroid;var Text=React.Text;var View=React.View;var Navigator=React.Navigator;var StyleSheet=React.StyleSheet;
+
+var MainScreen=require('ContentPortal/src/MainScreen.js');
+var TimerMixin=require('react-timer-mixin/TimerMixin.js');
+var StoryScreen=require('ContentPortal/src/StoryScreen.js');
+
+var _navigator;
+BackAndroid.addEventListener("hardwareBackPress",function(){
+if(_navigator && _navigator.getCurrentRoutes().length > 1){
+_navigator.pop();
+return true;}
+
+return false;});
+
 
 var ContentPortal=React.createClass({displayName:'ContentPortal',
-getInitialState:function(){
-return {
-posts:INITIAL_DATA,
-post:INITIAL_DATA[0]};},
+mixins:TimerMixin,
+RouteMapper:function(route,navigationOperations,onComponentRef){
+_navigator = navigationOperations;
+if(route.name === 'home'){
+return (
+React.createElement(View,{style:styles.container},
+React.createElement(MainScreen,{navigator:navigationOperations})));}else 
+
+
+if(route.name === 'story'){
+return (
+React.createElement(View,{style:styles.container},
+React.createElement(StoryScreen,{
+style:{flex:1},
+navigator:navigationOperations,
+story:route.story})));}},
+
+
 
 
 render:function(){
-if(!this.state.post){
-return this.renderLoadingView();}
-
-return this.renderPost();},
-
-renderPost:function(){
+var initialRoute={name:'home'};
 return (
-React.createElement(View,{style:styles.container},
-React.createElement(Image,{style:styles.image,resizeMode:Image.resizeMode.stretch,source:{uri:this.state.post.image}}),
-React.createElement(View,{style:styles.textContainer},
-React.createElement(Text,{style:styles.title},
-this.state.post.title),
-
-React.createElement(Text,{style:styles.text},
-this.state.post.content)),
-
-
-React.createElement(View,{style:styles.buttonContainer},
-React.createElement(TouchableHighlight,{
-style:styles.button,
-underlayColor:'#ccc',
-onPress:this.updatePostNext},
-
-React.createElement(Text,{style:styles.buttonText},'Next Post')))));},
+React.createElement(Navigator,{
+style:styles.container,
+initialRoute:initialRoute,
+configureScene:function(){return Navigator.SceneConfigs.FadeAndroid;},
+renderScene:this.RouteMapper}));}});
 
 
 
-
-
-componentDidMount:function(){
-this.fetchData();},
-
-fetchData:function(){var _this=this;
-this.setState({
-
-post:null});
-
-fetch(REQUEST_URL).
-then(function(response){return response.json();}).
-then(function(responseData){
-_this.setState({
-
-posts:responseData.posts});
-
-TOTAL_POST_COUNT = _this.state.posts.length;
-_this.updatePostNext();}).
-
-
-done();},
-
-renderLoadingView:function(){
-return (
-React.createElement(View,{style:[styles.container,{alignItems:'center'}]},
-React.createElement(Text,null,'Thinking thoughts...')));},
-
-
-
-
-
-updatePostNext:function(){
-CURRENT_INDEX++;
-if(CURRENT_INDEX >= TOTAL_POST_COUNT)
-{
-CURRENT_INDEX = 0;}
-
-
-this.setState({
-post:{title:this.state.posts[CURRENT_INDEX].title,content:this.state.posts[CURRENT_INDEX].custom_fields.content[0],image:this.state.posts[CURRENT_INDEX].attachments[0].url}});}});
-
-
-
-
-
-var Dimensions=require('Dimensions');
-var windowSize=Dimensions.get('window');
 
 var styles=StyleSheet.create({
 container:{
 flex:1,
-justifyContent:'center',
-backgroundColor:'#FFFFFF'},
+flexDirection:'column'},
 
-textContainer:{
-flex:1,
-paddingLeft:20,
-paddingRight:20},
-
-title:{
-fontSize:18,
-fontWeight:'bold',
-marginBottom:5,
-marginTop:15},
-
-text:{
-fontSize:12,
-textAlign:'left',
+instructions:{
+textAlign:'center',
 color:'#333333',
-marginBottom:5,
-marginTop:15},
-
-buttonContainer:{
-bottom:0,
-flex:.2,
-width:windowSize.width,
-backgroundColor:'#eee'},
-
-button:{
-flex:1,
-alignItems:'center',
-justifyContent:'center'},
-
-buttonText:{
-fontSize:30,
-color:'#666666'},
-
-image:{
-margin:2,
-flex:1,height:200}});
+marginBottom:5}});
 
 
 
@@ -52936,6 +52856,1120 @@ Object.keys(componentOrElement));}
 
 
 module.exports = findDOMNode;
+});
+__d('ContentPortal/src/MainScreen.js',["react-native/Libraries/react-native/react-native.js","react-native-viewpager/ViewPager.js","ContentPortal/src/StoryScreen.js","Dimensions"],function(global, require, module, exports) {  'use strict';
+
+
+
+
+
+var INITIAL_DATA=[
+{title:'Deep Thought #1',content:"If there's no 'there' there, where is it and what's there?"}];
+
+
+var TOTAL_POST_COUNT=0;
+var CURRENT_INDEX=0;
+
+var REQUEST_URL='http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts&count=50';
+
+var React=require('react-native/Libraries/react-native/react-native.js');var 
+
+Image=
+
+
+
+
+
+React.Image;var StyleSheet=React.StyleSheet;var Text=React.Text;var View=React.View;var TouchableHighlight=React.TouchableHighlight;var TouchableOpacity=React.TouchableOpacity;
+
+var ViewPager=require('react-native-viewpager/ViewPager.js');
+var StoryScreen=require('ContentPortal/src/StoryScreen.js');
+
+var ds=new ViewPager.DataSource({
+pageHasChanged:function(p1,p2){return p1 !== p2;}});
+
+
+var MainScreen=React.createClass({displayName:'MainScreen',
+getInitialState:function(){
+
+return {
+posts:INITIAL_DATA,
+post:false,
+dataSource:ds.cloneWithPages(INITIAL_DATA)};},
+
+
+render:function(){
+if(!this.state.post){
+return this.renderLoadingView();}
+
+return (
+React.createElement(ViewPager,{
+style:this.props.style,
+dataSource:this.state.dataSource,
+renderPage:this.renderPost,
+isLoop:false,
+autoPlay:false}));},
+
+
+renderPost:function(story,
+pageID){var _this=this;
+return (
+React.createElement(TouchableOpacity,{style:{flex:1},onPress:function(){_this.selectStory(story);}},
+React.createElement(View,{style:styles.container},
+React.createElement(Image,{style:styles.image,resizeMode:Image.resizeMode.stretch,source:{uri:this.findImageAttachment(story.custom_fields.image_url[0],story.attachments)}}),
+React.createElement(View,{style:styles.textContainer},
+React.createElement(Text,{style:styles.title},
+story.title),
+
+React.createElement(Text,{style:styles.text},
+story.custom_fields.content[0])))));},
+
+
+
+
+
+
+componentDidMount:function(){
+this.fetchData();},
+
+fetchData:function(){var _this2=this;
+fetch(REQUEST_URL).
+then(function(response){return response.json();}).
+then(function(responseData){
+_this2.setState({
+
+
+dataSource:ds.cloneWithPages(responseData.posts)},
+function(){
+TOTAL_POST_COUNT = responseData.count;
+this.setState({post:true});});}).
+
+
+done();},
+
+renderLoadingView:function(){
+return (
+React.createElement(View,{style:[styles.container,{alignItems:'center'}]},
+React.createElement(Text,null,'Thinking thoughts...')));},
+
+
+
+
+
+selectStory:function(story){
+story.read = true;
+
+
+
+
+
+
+
+this.props.navigator.push({
+title:story.title,
+name:'story',
+story:story});},
+
+
+
+findImageAttachment:function(id,attachments){
+var i=null;
+for(i = 0;attachments.length > i;i += 1) {
+if(attachments[i].id === parseInt(id)){
+return attachments[i].url;}}
+
+
+
+return attachments[0].url;}});
+
+
+
+
+var Dimensions=require('Dimensions');
+var windowSize=Dimensions.get('window');
+
+var styles=StyleSheet.create({
+container:{
+flex:1,
+justifyContent:'center',
+backgroundColor:'#FFFFFF'},
+
+textContainer:{
+flex:1,
+paddingLeft:20,
+paddingRight:20},
+
+title:{
+fontSize:18,
+fontWeight:'bold',
+marginBottom:5,
+marginTop:15},
+
+text:{
+fontSize:12,
+textAlign:'left',
+color:'#333333',
+marginBottom:5,
+marginTop:15},
+
+buttonContainer:{
+bottom:0,
+flex:.2,
+width:windowSize.width,
+backgroundColor:'#eee'},
+
+button:{
+flex:1,
+alignItems:'center',
+justifyContent:'center'},
+
+buttonText:{
+fontSize:30,
+color:'#666666'},
+
+image:{
+margin:2,
+flex:1,height:200,
+borderRadius:1.5}});
+
+
+
+module.exports = MainScreen;
+});
+__d('react-native-viewpager/ViewPager.js',["react-native/Libraries/react-native/react-native.js","react-timer-mixin/TimerMixin.js","react-native-viewpager/DefaultViewPageIndicator.js","react-native-viewpager/ViewPagerDataSource.js"],function(global, require, module, exports) {  'use strict';var _extends=Object.assign || function(target){for(var i=1;i < arguments.length;i++) {var source=arguments[i];for(var key in source) {if(Object.prototype.hasOwnProperty.call(source,key)){target[key] = source[key];}}}return target;};
+
+var React=require('react-native/Libraries/react-native/react-native.js');var 
+
+Dimensions=
+
+
+
+
+
+
+
+React.Dimensions;var Text=React.Text;var View=React.View;var TouchableOpacity=React.TouchableOpacity;var PanResponder=React.PanResponder;var Animated=React.Animated;var PropTypes=React.PropTypes;var StyleSheet=React.StyleSheet;
+
+var StaticRenderer=require('StaticRenderer');
+var TimerMixin=require('react-timer-mixin/TimerMixin.js');
+
+var DefaultViewPageIndicator=require('react-native-viewpager/DefaultViewPageIndicator.js');
+var deviceWidth=Dimensions.get('window').width;
+var ViewPagerDataSource=require('react-native-viewpager/ViewPagerDataSource.js');
+
+var ViewPager=React.createClass({displayName:'ViewPager',
+mixins:[TimerMixin],
+
+statics:{
+DataSource:ViewPagerDataSource},
+
+
+propTypes:_extends({},
+View.propTypes,{
+dataSource:PropTypes.instanceOf(ViewPagerDataSource).isRequired,
+renderPage:PropTypes.func.isRequired,
+onChangePage:PropTypes.func,
+renderPageIndicator:React.PropTypes.oneOfType([
+PropTypes.func,
+PropTypes.bool]),
+
+isLoop:PropTypes.bool,
+locked:PropTypes.bool,
+autoPlay:PropTypes.bool}),
+
+
+getDefaultProps:function(){
+return {
+isLoop:false,
+locked:false};},
+
+
+
+getInitialState:function(){
+return {
+currentPage:0,
+viewWidth:0,
+childIndex:0,
+scrollValue:new Animated.Value(0)};},
+
+
+
+componentWillMount:function(){var _this=this;
+var release=function(e,gestureState){
+var relativeGestureDistance=gestureState.dx / deviceWidth,
+
+vx=gestureState.vx;
+
+var step=0;
+if(relativeGestureDistance < -0.5 || relativeGestureDistance < 0 && vx <= 0.5){
+step = 1;}else 
+if(relativeGestureDistance > 0.5 || relativeGestureDistance > 0 && vx >= 0.5){
+step = -1;}
+
+
+_this.props.hasTouch && _this.props.hasTouch(false);
+
+_this.movePage(step);};
+
+
+this._panResponder = PanResponder.create({
+
+onMoveShouldSetPanResponder:function(e,gestureState){
+if(Math.abs(gestureState.dx) > Math.abs(gestureState.dy)){
+if(
+
+_this.props.locked !== true && !_this.state.fling){
+_this.props.hasTouch && _this.props.hasTouch(true);
+return true;}}},
+
+
+
+
+
+onPanResponderRelease:release,
+onPanResponderTerminate:release,
+
+
+onPanResponderMove:function(e,gestureState){
+var dx=gestureState.dx;
+var offsetX=-dx / _this.state.viewWidth + _this.state.childIndex;
+_this.state.scrollValue.setValue(offsetX);}});
+
+
+
+if(this.props.isLoop){
+this.state.childIndex = 1;
+this.state.scrollValue.setValue(1);}},
+
+
+
+componentDidMount:function(){
+if(this.props.autoPlay){
+this._startAutoPlay();}},
+
+
+
+componentWillReceiveProps:function(nextProps){
+if(nextProps.autoPlay){
+this._startAutoPlay();}else 
+{
+if(this._autoPlayer){
+this.clearInterval(this._autoPlayer);
+this._autoPlayer = null;}}},
+
+
+
+
+_startAutoPlay:function(){var _this2=this;
+if(!this._autoPlayer){
+this._autoPlayer = this.setInterval(
+function(){_this2.movePage(1);},
+5000);}},
+
+
+
+
+goToPage:function(pageNumber){
+
+var pageCount=this.props.dataSource.getPageCount();
+if(pageNumber < 0 || pageNumber >= pageCount){
+console.error('Invalid page number: ',pageNumber);
+return;}
+
+
+var step=pageNumber - this.state.currentPage;
+this.movePage(step);},
+
+
+movePage:function(step){var _this3=this;
+var pageCount=this.props.dataSource.getPageCount();
+var pageNumber=this.state.currentPage + step;
+
+if(this.props.isLoop){
+pageNumber = (pageNumber + pageCount) % pageCount;}else 
+{
+pageNumber = Math.min(Math.max(0,pageNumber),pageCount - 1);}
+
+
+var moved=pageNumber !== this.state.currentPage;
+var scrollStep=(moved?step:0) + this.state.childIndex;
+
+moved && this.props.onChangePage && this.props.onChangePage(pageNumber);
+
+this.state.fling = true;
+
+var nextChildIdx=0;
+if(pageNumber > 0 || this.props.isLoop){
+nextChildIdx = 1;}
+
+
+Animated.spring(this.state.scrollValue,{toValue:scrollStep,friction:10,tension:50}).
+start(function(event){
+if(event.finished){
+_this3.state.fling = false;
+_this3.state.childIndex = nextChildIdx;
+_this3.state.scrollValue.setValue(nextChildIdx);
+_this3.setState({
+currentPage:pageNumber});}});},
+
+
+
+
+
+renderPageIndicator:function(props){
+if(this.props.renderPageIndicator === false){
+return null;}else 
+if(this.props.renderPageIndicator){
+return React.cloneElement(this.props.renderPageIndicator(),props);}else 
+{
+return (
+React.createElement(View,{style:styles.indicators},
+React.createElement(DefaultViewPageIndicator,props)));}},
+
+
+
+
+
+_getPage:function(pageIdx){
+var dataSource=this.props.dataSource;
+var pageID=dataSource.pageIdentities[pageIdx];
+return (
+React.createElement(StaticRenderer,{
+key:'p_' + pageID,
+shouldUpdate:true,
+render:this.props.renderPage.bind(
+null,
+dataSource.getPageData(pageIdx),
+pageID)}));},
+
+
+
+
+
+render:function(){var _this4=this;
+var dataSource=this.props.dataSource;
+var pageIDs=dataSource.pageIdentities;
+
+var bodyComponents=[];
+
+var pagesNum=0;
+var hasLeft=false;
+var viewWidth=this.state.viewWidth;
+
+if(pageIDs.length > 0 && viewWidth > 0){
+
+if(this.state.currentPage > 0){
+bodyComponents.push(this._getPage(this.state.currentPage - 1));
+pagesNum++;
+hasLeft = true;}else 
+if(this.state.currentPage == 0 && this.props.isLoop){
+bodyComponents.push(this._getPage(pageIDs.length - 1));
+pagesNum++;
+hasLeft = true;}
+
+
+
+bodyComponents.push(this._getPage(this.state.currentPage));
+pagesNum++;
+
+
+if(this.state.currentPage < pageIDs.length - 1){
+bodyComponents.push(this._getPage(this.state.currentPage + 1));
+pagesNum++;}else 
+if(this.state.currentPage == pageIDs.length - 1 && this.props.isLoop){
+bodyComponents.push(this._getPage(0));
+pagesNum++;}}
+
+
+
+var sceneContainerStyle={
+width:viewWidth * pagesNum,
+flex:1,
+flexDirection:'row'};
+
+
+
+
+var translateX=this.state.scrollValue.interpolate({
+inputRange:[0,1],outputRange:[0,-viewWidth]});
+
+
+return (
+React.createElement(View,{style:{flex:1},
+onLayout:function(event){
+
+var viewWidth=event.nativeEvent.layout.width;
+if(!viewWidth || _this4.state.viewWidth === viewWidth){
+return;}
+
+_this4.setState({
+currentPage:_this4.state.currentPage,
+viewWidth:viewWidth});}},
+
+
+
+
+React.createElement(Animated.View,_extends({style:[sceneContainerStyle,{transform:[{translateX:translateX}]}]},
+this._panResponder.panHandlers),
+bodyComponents),
+
+
+this.renderPageIndicator({goToPage:this.goToPage,
+pageCount:pageIDs.length,
+activePage:this.state.currentPage,
+scrollValue:this.state.scrollValue,
+scrollOffset:this.state.childIndex})));}});
+
+
+
+
+
+
+var styles=StyleSheet.create({
+indicators:{
+flex:1,
+alignItems:'center',
+position:'absolute',
+bottom:10,
+left:0,
+right:0,
+backgroundColor:'transparent'}});
+
+
+
+module.exports = ViewPager;
+});
+__d('react-timer-mixin/TimerMixin.js',[],function(global, require, module, exports) {  'use strict';
+
+
+
+
+
+
+
+
+
+
+var GLOBAL=typeof window === 'undefined'?global:window;
+
+var setter=function(_setter,_clearer,array){
+return function(callback,delta){
+var id=_setter((function(){
+_clearer.call(this,id);
+callback.apply(this,arguments);}).
+bind(this),delta);
+
+if(!this[array]){
+this[array] = [id];}else 
+{
+this[array].push(id);}
+
+return id;};};
+
+
+
+var clearer=function(_clearer,array){
+return function(id){
+if(this[array]){
+var index=this[array].indexOf(id);
+if(index !== -1){
+this[array].splice(index,1);}}
+
+
+_clearer(id);};};
+
+
+
+var _timeouts='TimerMixin_timeouts';
+var _clearTimeout=clearer(GLOBAL.clearTimeout,_timeouts);
+var _setTimeout=setter(GLOBAL.setTimeout,_clearTimeout,_timeouts);
+
+var _intervals='TimerMixin_intervals';
+var _clearInterval=clearer(GLOBAL.clearInterval,_intervals);
+var _setInterval=setter(GLOBAL.setInterval,function(){},_intervals);
+
+var _immediates='TimerMixin_immediates';
+var _clearImmediate=clearer(GLOBAL.clearImmediate,_immediates);
+var _setImmediate=setter(GLOBAL.setImmediate,_clearImmediate,_immediates);
+
+var _rafs='TimerMixin_rafs';
+var _cancelAnimationFrame=clearer(GLOBAL.cancelAnimationFrame,_rafs);
+var _requestAnimationFrame=setter(GLOBAL.requestAnimationFrame,_cancelAnimationFrame,_rafs);
+
+var TimerMixin={
+componentWillUnmount:function(){
+this[_timeouts] && this[_timeouts].forEach(function(id){
+GLOBAL.clearTimeout(id);});
+
+this[_timeouts] = null;
+this[_intervals] && this[_intervals].forEach(function(id){
+GLOBAL.clearInterval(id);});
+
+this[_intervals] = null;
+this[_immediates] && this[_immediates].forEach(function(id){
+GLOBAL.clearImmediate(id);});
+
+this[_immediates] = null;
+this[_rafs] && this[_rafs].forEach(function(id){
+GLOBAL.cancelAnimationFrame(id);});
+
+this[_rafs] = null;},
+
+
+setTimeout:_setTimeout,
+clearTimeout:_clearTimeout,
+
+setInterval:_setInterval,
+clearInterval:_clearInterval,
+
+setImmediate:_setImmediate,
+clearImmediate:_clearImmediate,
+
+requestAnimationFrame:_requestAnimationFrame,
+cancelAnimationFrame:_cancelAnimationFrame};
+
+
+module.exports = TimerMixin;
+});
+__d('react-native-viewpager/DefaultViewPageIndicator.js',["react-native/Libraries/react-native/react-native.js"],function(global, require, module, exports) {  'use strict';
+
+var React=require('react-native/Libraries/react-native/react-native.js');var 
+
+Dimensions=
+
+
+
+
+
+React.Dimensions;var StyleSheet=React.StyleSheet;var Text=React.Text;var TouchableOpacity=React.TouchableOpacity;var View=React.View;var Animated=React.Animated;
+
+var deviceWidth=Dimensions.get('window').width;
+var DOT_SIZE=6;
+var DOT_SAPCE=3;
+
+var styles=StyleSheet.create({
+tab:{
+alignItems:'center'},
+
+
+tabs:{
+flexDirection:'row',
+alignItems:'center',
+justifyContent:'center'},
+
+
+dot:{
+width:DOT_SIZE,
+height:DOT_SIZE,
+borderRadius:DOT_SIZE / 2,
+backgroundColor:'rgba(100,100,100,0.5)',
+marginLeft:DOT_SAPCE,
+marginRight:DOT_SAPCE},
+
+
+curDot:{
+position:'absolute',
+width:DOT_SIZE,
+height:DOT_SIZE,
+borderRadius:DOT_SIZE / 2,
+backgroundColor:'rgba(250,250,250,0.8)',
+margin:DOT_SAPCE,
+bottom:0}});
+
+
+
+var DefaultViewPageIndicator=React.createClass({displayName:'DefaultViewPageIndicator',
+propTypes:{
+goToPage:React.PropTypes.func,
+activePage:React.PropTypes.number,
+pageCount:React.PropTypes.number},
+
+
+getInitialState:function(){
+return {
+viewWidth:0};},
+
+
+
+renderIndicator:function(page){var _this=this;
+
+return (
+React.createElement(TouchableOpacity,{style:styles.tab,key:'idc_' + page,onPress:function(){return _this.props.goToPage(page);}},
+React.createElement(View,{style:styles.dot})));},
+
+
+
+
+render:function(){var _this2=this;
+var pageCount=this.props.pageCount;
+var itemWidth=DOT_SIZE + DOT_SAPCE * 2;
+var offset=(this.state.viewWidth - itemWidth * pageCount) / 2 + itemWidth * this.props.activePage;
+
+
+var offsetX=itemWidth * (this.props.activePage - this.props.scrollOffset);
+var left=this.props.scrollValue.interpolate({
+inputRange:[0,1],outputRange:[offsetX,offsetX + itemWidth]});
+
+
+var indicators=[];
+for(var i=0;i < pageCount;i++) {
+indicators.push(this.renderIndicator(i));}
+
+
+return (
+React.createElement(View,{style:styles.tabs,
+onLayout:function(event){
+var viewWidth=event.nativeEvent.layout.width;
+if(!viewWidth || _this2.state.viewWidth === viewWidth){
+return;}
+
+_this2.setState({
+viewWidth:viewWidth});}},
+
+
+indicators,
+React.createElement(Animated.View,{style:[styles.curDot,{left:left}]})));}});
+
+
+
+
+
+module.exports = DefaultViewPageIndicator;
+});
+__d('react-native-viewpager/ViewPagerDataSource.js',[],function(global, require, module, exports) {  'use strict';var _createClass=(function(){function defineProperties(target,props){for(var i=0;i < props.length;i++) {var descriptor=props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if('value' in descriptor)descriptor.writable = true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};})();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError('Cannot call a class as a function');}}
+
+var invariant=require('invariant');
+var isEmpty=require('isEmpty');
+var warning=require('warning');
+
+function defaultGetPageData(
+dataBlob,
+pageID)
+{
+return dataBlob[pageID];}var 
+
+
+
+
+
+
+
+
+
+ViewPagerDataSource=(function(){
+
+function ViewPagerDataSource(params){_classCallCheck(this,ViewPagerDataSource);
+this._getPageData = params.getPageData || defaultGetPageData;
+this._pageHasChanged = params.pageHasChanged;
+
+this.pageIdentities = [];}_createClass(ViewPagerDataSource,[{key:'cloneWithPages',value:
+
+
+function cloneWithPages(
+dataBlob,
+pageIdentities)
+{
+
+var newSource=new ViewPagerDataSource({
+getPageData:this._getPageData,
+pageHasChanged:this._pageHasChanged});
+
+
+newSource._dataBlob = dataBlob;
+
+if(pageIdentities){
+newSource.pageIdentities = pageIdentities;}else 
+{
+newSource.pageIdentities = Object.keys(dataBlob);}
+
+
+newSource._cachedPageCount = newSource.pageIdentities.length;
+newSource._calculateDirtyPages(
+this._dataBlob,
+this.pageIdentities);
+
+return newSource;}},{key:'getPageCount',value:
+
+
+function getPageCount(){
+return this._cachedPageCount;}},{key:'pageShouldUpdate',value:
+
+
+
+
+
+function pageShouldUpdate(pageIndex){
+var needsUpdate=this._dirtyPages[pageIndex];
+warning(needsUpdate !== undefined,
+'missing dirtyBit for section, page: ' + pageIndex);
+return needsUpdate;}},{key:'getPageData',value:
+
+
+
+
+
+function getPageData(pageIndex){
+if(!this.getPageData){
+return null;}
+
+var pageID=this.pageIdentities[pageIndex];
+warning(pageID !== undefined,
+'renderPage called on invalid section: ' + pageID);
+return this._dataBlob[pageID];}},{key:'_calculateDirtyPages',value:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function _calculateDirtyPages(
+prevDataBlob,
+prevPageIDs)
+{
+
+var prevPagesHash=keyedDictionaryFromArray(prevPageIDs);
+this._dirtyPages = [];
+
+var dirty;
+for(var sIndex=0;sIndex < this.pageIdentities.length;sIndex++) {
+var pageID=this.pageIdentities[sIndex];
+dirty = !prevPagesHash[pageID];
+var pageHasChanged=this._pageHasChanged;
+if(!dirty && pageHasChanged){
+dirty = pageHasChanged(
+this._getPageData(prevDataBlob,pageID),
+this._getPageData(this._dataBlob,pageID));}
+
+
+this._dirtyPages.push(!!dirty);}}}]);return ViewPagerDataSource;})();
+
+
+
+
+
+function keyedDictionaryFromArray(arr){
+if(isEmpty(arr)){
+return {};}
+
+var result={};
+for(var ii=0;ii < arr.length;ii++) {
+var key=arr[ii];
+warning(!result[key],'Value appears more than once in array: ' + key);
+result[key] = true;}
+
+return result;}
+
+
+module.exports = ViewPagerDataSource;
+});
+__d('ContentPortal/src/StoryScreen.js',["react-native/Libraries/react-native/react-native.js","ContentPortal/src/WebView.js"],function(global, require, module, exports) {  'use strict';
+
+var React=require('react-native/Libraries/react-native/react-native.js');var 
+
+PixelRatio=
+
+
+
+
+
+
+React.PixelRatio;var View=React.View;var Text=React.Text;var Animated=React.Animated;var Platform=React.Platform;var WebView=React.WebView;var StyleSheet=React.StyleSheet;
+
+var MyWebView=Platform.OS === 'ios'?WebView:require('ContentPortal/src/WebView.js');
+
+var PIXELRATIO=PixelRatio.get();
+var HEADER_SIZE=200;
+
+var StoryScreen=React.createClass({displayName:'StoryScreen',
+getInitialState:function(){
+return {
+isLoading:false,
+detail:null,
+scrollY:0,
+scrollValue:new Animated.Value(0)};},
+
+
+componentDidMount:function(){},
+
+
+
+fetchStroyDetail:function(){var _this=this;
+var reqUrl='http://google.com';
+this.setState({
+isLoading:true,
+detail:null});
+
+fetch(reqUrl).
+catch(function(error){
+_this.setState({
+isLoading:false,
+detail:null});}).
+
+
+then(function(responseData){
+_this.setState({
+isLoading:false,
+detail:responseData});}).
+
+
+done();},
+
+onWebViewScroll:function(event){
+
+var scrollY=-event / PIXELRATIO;
+this.state.scrollValue.setValue(scrollY);},
+
+render:function(){
+
+
+
+
+
+
+
+
+
+
+
+var translateY=this.state.scrollValue.interpolate({
+inputRange:[0,HEADER_SIZE,HEADER_SIZE + 1],outputRange:[0,HEADER_SIZE,HEADER_SIZE]});
+
+
+
+
+
+console.log(this.props.story);
+var reqUrl=this.props.story.custom_fields.content_url[0];
+return (
+React.createElement(View,{style:styles.container},
+React.createElement(MyWebView,{
+style:styles.content,
+url:reqUrl,
+onScrollChange:this.onWebViewScroll})));}});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var styles=StyleSheet.create({
+toolbar:{
+backgroundColor:'#00a2ed',
+height:56,
+position:'absolute',
+left:0,
+right:0,
+bottom:0,
+top:0},
+
+header:{
+height:HEADER_SIZE,
+position:'absolute',
+left:0,
+right:0,
+bottom:0,
+top:56},
+
+headerImage:{
+height:HEADER_SIZE,
+flexDirection:'row',
+backgroundColor:'#DDDDDD'},
+
+titleContainer:{
+flex:1,
+alignSelf:'flex-end',
+padding:10,
+backgroundColor:'rgba(0,0,0,0.3)'},
+
+title:{
+flex:1,
+fontSize:18,
+fontWeight:'500',
+color:'white'},
+
+container:{
+flex:1,
+backgroundColor:'#F5FCFF'},
+
+center:{
+justifyContent:'center',
+alignItems:'center'},
+
+content:{
+flex:1,
+position:'absolute',
+left:0,
+right:0,
+bottom:0,
+top:56}});
+
+
+
+
+module.exports = StoryScreen;
+});
+__d('ContentPortal/src/WebView.js',["react-native/Libraries/react-native/react-native.js","ReactNativeViewAttributes"],function(global, require, module, exports) {  'use strict';var _extends=Object.assign || function(target){for(var i=1;i < arguments.length;i++) {var source=arguments[i];for(var key in source) {if(Object.prototype.hasOwnProperty.call(source,key)){target[key] = source[key];}}}return target;};var _createClass=(function(){function defineProperties(target,props){for(var i=0;i < props.length;i++) {var descriptor=props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if('value' in descriptor)descriptor.writable = true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};})();var _get=function get(object,property,receiver){if(object === null)object = Function.prototype;var desc=Object.getOwnPropertyDescriptor(object,property);if(desc === undefined){var parent=Object.getPrototypeOf(object);if(parent === null){return undefined;}else {return get(parent,property,receiver);}}else if('value' in desc){return desc.value;}else {var getter=desc.get;if(getter === undefined){return undefined;}return getter.call(receiver);}};function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError('Cannot call a class as a function');}}function _inherits(subClass,superClass){if(typeof superClass !== 'function' && superClass !== null){throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass);}subClass.prototype = Object.create(superClass && superClass.prototype,{constructor:{value:subClass,enumerable:false,writable:true,configurable:true}});if(superClass)Object.setPrototypeOf?Object.setPrototypeOf(subClass,superClass):subClass.__proto__ = superClass;}
+
+var React=require('react-native/Libraries/react-native/react-native.js');var 
+
+requireNativeComponent=
+
+React.requireNativeComponent;var PropTypes=React.PropTypes;
+
+var ReactNativeViewAttributes=require('ReactNativeViewAttributes');var 
+
+ObservableWebView=(function(_React$Component){_inherits(ObservableWebView,_React$Component);
+function ObservableWebView(){_classCallCheck(this,ObservableWebView);
+_get(Object.getPrototypeOf(ObservableWebView.prototype),'constructor',this).call(this);
+this._onChange = this._onChange.bind(this);}_createClass(ObservableWebView,[{key:'_onChange',value:
+
+
+function _onChange(event){
+if(!this.props.onScrollChange){
+return;}
+
+this.props.onScrollChange(event.nativeEvent.ScrollY);}},{key:'render',value:
+
+
+function render(){
+return React.createElement(RCTWebView,_extends({},this.props,{onChange:this._onChange}));}}]);return ObservableWebView;})(React.Component);
+
+
+
+ObservableWebView.propTypes = {
+url:PropTypes.string,
+html:PropTypes.string,
+css:PropTypes.string,
+onScrollChange:PropTypes.func};
+
+
+
+
+
+
+
+var RCTWebView=requireNativeComponent('RCTWebView',ObservableWebView,{
+nativeOnly:{
+onChange:true,
+'scaleX':true,
+'scaleY':true,
+'translateY':true,
+'translateX':true,
+'rotation':true}});
+
+
+
+module.exports = ObservableWebView;
+});
+__d('react-timer-mixin/TimerMixin.js',[],function(global, require, module, exports) {  'use strict';
+
+
+
+
+
+
+
+
+
+
+var GLOBAL=typeof window === 'undefined'?global:window;
+
+var setter=function(_setter,_clearer,array){
+return function(callback,delta){
+var id=_setter((function(){
+_clearer.call(this,id);
+callback.apply(this,arguments);}).
+bind(this),delta);
+
+if(!this[array]){
+this[array] = [id];}else 
+{
+this[array].push(id);}
+
+return id;};};
+
+
+
+var clearer=function(_clearer,array){
+return function(id){
+if(this[array]){
+var index=this[array].indexOf(id);
+if(index !== -1){
+this[array].splice(index,1);}}
+
+
+_clearer(id);};};
+
+
+
+var _timeouts='TimerMixin_timeouts';
+var _clearTimeout=clearer(GLOBAL.clearTimeout,_timeouts);
+var _setTimeout=setter(GLOBAL.setTimeout,_clearTimeout,_timeouts);
+
+var _intervals='TimerMixin_intervals';
+var _clearInterval=clearer(GLOBAL.clearInterval,_intervals);
+var _setInterval=setter(GLOBAL.setInterval,function(){},_intervals);
+
+var _immediates='TimerMixin_immediates';
+var _clearImmediate=clearer(GLOBAL.clearImmediate,_immediates);
+var _setImmediate=setter(GLOBAL.setImmediate,_clearImmediate,_immediates);
+
+var _rafs='TimerMixin_rafs';
+var _cancelAnimationFrame=clearer(GLOBAL.cancelAnimationFrame,_rafs);
+var _requestAnimationFrame=setter(GLOBAL.requestAnimationFrame,_cancelAnimationFrame,_rafs);
+
+var TimerMixin={
+componentWillUnmount:function(){
+this[_timeouts] && this[_timeouts].forEach(function(id){
+GLOBAL.clearTimeout(id);});
+
+this[_timeouts] = null;
+this[_intervals] && this[_intervals].forEach(function(id){
+GLOBAL.clearInterval(id);});
+
+this[_intervals] = null;
+this[_immediates] && this[_immediates].forEach(function(id){
+GLOBAL.clearImmediate(id);});
+
+this[_immediates] = null;
+this[_rafs] && this[_rafs].forEach(function(id){
+GLOBAL.cancelAnimationFrame(id);});
+
+this[_rafs] = null;},
+
+
+setTimeout:_setTimeout,
+clearTimeout:_clearTimeout,
+
+setInterval:_setInterval,
+clearInterval:_clearInterval,
+
+setImmediate:_setImmediate,
+clearImmediate:_clearImmediate,
+
+requestAnimationFrame:_requestAnimationFrame,
+cancelAnimationFrame:_cancelAnimationFrame};
+
+
+module.exports = TimerMixin;
 });
 ;require("ContentPortal/index.android.js");
 //@ sourceMappingURL=/index.android.map?platform=android&dev=true
