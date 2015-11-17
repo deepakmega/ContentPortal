@@ -1440,7 +1440,8 @@ renderScene:this.RouteMapper}));}});
 var styles=StyleSheet.create({
 container:{
 flex:1,
-flexDirection:'column'},
+flexDirection:'column',
+backgroundColor:'#000000'},
 
 instructions:{
 textAlign:'center',
@@ -52880,7 +52881,8 @@ Image=
 
 
 
-React.Image;var StyleSheet=React.StyleSheet;var Text=React.Text;var View=React.View;var TouchableHighlight=React.TouchableHighlight;var TouchableOpacity=React.TouchableOpacity;
+
+React.Image;var StyleSheet=React.StyleSheet;var Text=React.Text;var View=React.View;var Platform=React.Platform;var TouchableHighlight=React.TouchableHighlight;var TouchableOpacity=React.TouchableOpacity;
 
 var ViewPager=require('react-native-viewpager/ViewPager.js');
 var StoryScreen=require('ContentPortal/src/StoryScreen.js');
@@ -52992,7 +52994,10 @@ var styles=StyleSheet.create({
 container:{
 flex:1,
 justifyContent:'center',
-backgroundColor:'#FFFFFF'},
+backgroundColor:'#FFFFFF',
+borderWidth:2,
+borderRadius:8,
+borderColor:'#000000'},
 
 textContainer:{
 flex:1,
@@ -53030,7 +53035,7 @@ color:'#666666'},
 image:{
 margin:2,
 flex:1,height:200,
-borderRadius:1.5}});
+borderRadius:4}});
 
 
 
@@ -53682,7 +53687,9 @@ PixelRatio=
 
 
 
-React.PixelRatio;var View=React.View;var Text=React.Text;var Animated=React.Animated;var Platform=React.Platform;var WebView=React.WebView;var StyleSheet=React.StyleSheet;
+
+
+React.PixelRatio;var View=React.View;var Text=React.Text;var Animated=React.Animated;var Platform=React.Platform;var WebView=React.WebView;var StyleSheet=React.StyleSheet;var TouchableHighlight=React.TouchableHighlight;var TouchableNativeFeedback=React.TouchableNativeFeedback;
 
 var MyWebView=Platform.OS === 'ios'?WebView:require('ContentPortal/src/WebView.js');
 
@@ -53698,8 +53705,9 @@ scrollY:0,
 scrollValue:new Animated.Value(0)};},
 
 
-componentDidMount:function(){},
+componentDidMount:function(){
 
+console.log("component mounted");},
 
 
 fetchStroyDetail:function(){var _this=this;
@@ -53728,7 +53736,16 @@ onWebViewScroll:function(event){
 var scrollY=-event / PIXELRATIO;
 this.state.scrollValue.setValue(scrollY);},
 
+_onPressBackButton:function(){
+if(this.props.navigator){
+this.props.navigator.pop();}},
+
+
 render:function(){
+var TouchableElement=TouchableHighlight;
+if(Platform.OS === 'android'){
+TouchableElement = TouchableNativeFeedback;}
+
 
 
 
@@ -53748,13 +53765,23 @@ inputRange:[0,HEADER_SIZE,HEADER_SIZE + 1],outputRange:[0,HEADER_SIZE,HEADER_SIZ
 
 
 console.log(this.props.story);
-var reqUrl=this.props.story.custom_fields.content_url[0];
+var reqUrl='http://googleweblight.com/?lite_url=' + this.props.story.custom_fields.content_url[0];
 return (
 React.createElement(View,{style:styles.container},
 React.createElement(MyWebView,{
+startInLoadingState:true,
 style:styles.content,
 url:reqUrl,
-onScrollChange:this.onWebViewScroll})));}});
+onScrollChange:this.onWebViewScroll}),
+React.createElement(View,{style:styles.toolbar},
+React.createElement(View,{style:styles.actionsContainer},
+React.createElement(TouchableElement,{onPress:this._onPressBackButton},
+React.createElement(View,{style:styles.actionItem},
+React.createElement(Text,null,'Back')))))));}});
+
+
+
+
 
 
 
@@ -53772,7 +53799,6 @@ onScrollChange:this.onWebViewScroll})));}});
 
 var styles=StyleSheet.create({
 toolbar:{
-backgroundColor:'#00a2ed',
 height:56,
 position:'absolute',
 left:0,
@@ -53819,7 +53845,19 @@ position:'absolute',
 left:0,
 right:0,
 bottom:0,
-top:56}});
+top:56},
+
+actionsContainer:{
+height:56,
+paddingTop:10,
+flexDirection:'row',
+alignItems:'center'},
+
+backIcon:{
+width:32,
+height:32,
+marginLeft:8,
+marginRight:8}});
 
 
 

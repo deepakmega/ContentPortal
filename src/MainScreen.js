@@ -19,6 +19,7 @@ var {
   StyleSheet,
   Text,
   View,
+  Platform,
   TouchableHighlight,
   TouchableOpacity,
 } = React;
@@ -44,14 +45,12 @@ var MainScreen = React.createClass({
       return this.renderLoadingView();
     }
     return (
-      <View style = {styles.backContainer}>
-        <ViewPager
-            style = {this.props.style}
-            dataSource = {this.state.dataSource}
-            renderPage = {this.renderPost}
-            isLoop = {false}
-            autoPlay = {false}/>
-      </View>
+      <ViewPager
+          style = {this.props.style}
+          dataSource = {this.state.dataSource}
+          renderPage = {this.renderPost}
+          isLoop = {false}
+          autoPlay = {false}/>
     );
   },
   renderPost: function(story: Object,
@@ -101,19 +100,19 @@ var MainScreen = React.createClass({
   },
   selectStory: function(story: Object){
     story.read = true;
-    // if (Platform.OS === 'ios') {
-    //   this.props.navigator.push({
-    //     title: story.title,
-    //     component: StoryScreen,
-    //     passProps: {story},
-    //   });
-    // } else {
+     // if (Platform.OS === 'ios') {
+     //   this.props.navigator.push({
+     //     title: story.title,
+     //     component: StoryScreen,
+     //     passProps: {story},
+     //   });
+     // } else {
       this.props.navigator.push({
         title: story.title,
         name: 'story',
         story: story,
       });
-    // }
+     //}
   },
   findImageAttachment : function(id: number, attachments: Array<Object>){
     var i = null;
@@ -132,18 +131,13 @@ var Dimensions = require('Dimensions');
 var windowSize = Dimensions.get('window');
 
 var styles = StyleSheet.create({
-  backContainer: {
-    flex: 1,
-    backgroundColor: '#000000',
-  },
   container: {
     flex: 1,
     justifyContent: 'center',    
     backgroundColor: '#FFFFFF',
-    borderStyle: 'solid',
     borderWidth: 2,
-    borderColor: 'black',
-    borderRadius: 5,
+    borderRadius: 8,
+    borderColor: '#000000',
   },
   textContainer: {
     flex: 1,
@@ -181,7 +175,7 @@ var styles = StyleSheet.create({
   image: {
     margin:2,
     flex: 1, height: 200,
-    borderRadius: 2
+    borderRadius: 4
   }
 });
 

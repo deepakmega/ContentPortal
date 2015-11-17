@@ -9,6 +9,8 @@ var {
   Platform,
   WebView,
   StyleSheet,
+  TouchableHighlight,
+  TouchableNativeFeedback
 } = React;
 
 var MyWebView = (Platform.OS === 'ios') ? WebView : require('./WebView');
@@ -27,6 +29,7 @@ var StoryScreen = React.createClass({
   },
   componentDidMount: function() {
     //this.fetchStroyDetail();
+    console.log("component mounted");
 
   },
   fetchStroyDetail: function() {
@@ -55,7 +58,16 @@ var StoryScreen = React.createClass({
     var scrollY = -event / PIXELRATIO;
     this.state.scrollValue.setValue(scrollY);
   },
+  _onPressBackButton: function() {
+    if (this.props.navigator) {
+      this.props.navigator.pop();
+    }
+  },
   render: function() {
+    var TouchableElement = TouchableHighlight;
+    if (Platform.OS === 'android') {
+      TouchableElement = TouchableNativeFeedback;
+    }
 
     // if (this.state.isLoading) {
     //   return (
@@ -75,13 +87,23 @@ var StoryScreen = React.createClass({
         //   + '" /></head><body>' //+ this.state.detail.body
         //   + '</body></html>';
         console.log(this.props.story);
-        var reqUrl = this.props.story.custom_fields.content_url[0];
+        var reqUrl = 'http://googleweblight.com/?lite_url=' + this.props.story.custom_fields.content_url[0];
         return (
           <View style={styles.container}>
             <MyWebView
+              startInLoadingState={true}
               style={styles.content}
               url={reqUrl}
               onScrollChange={this.onWebViewScroll}/>
+              <View style={styles.toolbar}>
+                <View style={styles.actionsContainer}>
+                  <TouchableElement onPress={this._onPressBackButton}>
+                    <View style={styles.actionItem}>
+                      <Text>Back</Text>
+                    </View>
+                  </TouchableElement>
+                </View>
+              </View>
           </View>
         );
       // } else {
@@ -99,7 +121,6 @@ var StoryScreen = React.createClass({
 
 var styles = StyleSheet.create({
   toolbar: {
-    backgroundColor: '#00a2ed',
     height: 56,
     position: 'absolute',
     left: 0,
@@ -147,6 +168,18 @@ var styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     top:56,
+  },
+  actionsContainer: {
+    height: 56,
+    paddingTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backIcon: {
+    width: 32,
+    height: 32,
+    marginLeft: 8,
+    marginRight: 8,
   },
 });
 
