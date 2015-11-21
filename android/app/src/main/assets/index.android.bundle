@@ -1375,7 +1375,7 @@ throw new TypeError(
 
 var index=findIndex.call(this,predicate,context);
 return index === -1?undefined:this[index];}});}})();
-__d('ContentPortal/index.android.js',["react-native/Libraries/react-native/react-native.js","ContentPortal/src/MainScreen.js","react-timer-mixin/TimerMixin.js","ContentPortal/src/StoryScreen.js"],function(global, require, module, exports) {  'use strict';
+__d('ContentPortal/index.android.js',["react-native/Libraries/react-native/react-native.js","react-timer-mixin/TimerMixin.js","ContentPortal/src/StoryScreen.js","ContentPortal/src/MainScreen.js"],function(global, require, module, exports) {  'use strict';
 
 
 
@@ -52905,18 +52905,21 @@ if(!this.state.post){
 return this.renderLoadingView();}
 
 return (
+React.createElement(View,{style:{flex:1}},
 React.createElement(ViewPager,{
-style:this.props.style,
+style:styles.listHeader,
 dataSource:this.state.dataSource,
-renderPage:this.renderPost,
+renderPage:this._renderPost,
 isLoop:false,
-autoPlay:false}));},
+autoPlay:false})));},
 
 
-renderPost:function(story,
+
+_renderPost:function(story,
 pageID){var _this=this;
 return (
 React.createElement(TouchableOpacity,{style:{flex:1},onPress:function(){_this.selectStory(story);}},
+React.createElement(View,{style:styles.headerItem},
 React.createElement(View,{style:styles.container},
 React.createElement(Image,{style:styles.image,resizeMode:Image.resizeMode.stretch,source:{uri:this.findImageAttachment(story.custom_fields.image_url[0],story.attachments)}}),
 React.createElement(View,{style:styles.textContainer},
@@ -52924,7 +52927,8 @@ React.createElement(Text,{style:styles.title},
 story.title),
 
 React.createElement(Text,{style:styles.text},
-story.custom_fields.content[0])))));},
+story.custom_fields.content[0]))))));},
+
 
 
 
@@ -53035,13 +53039,18 @@ color:'#666666'},
 image:{
 margin:2,
 flex:1,height:200,
-borderRadius:4}});
+borderRadius:4},
+
+headerItem:{
+flex:1,
+height:200,
+flexDirection:'row'}});
 
 
 
 module.exports = MainScreen;
 });
-__d('react-native-viewpager/ViewPager.js',["react-native/Libraries/react-native/react-native.js","react-timer-mixin/TimerMixin.js","react-native-viewpager/DefaultViewPageIndicator.js","react-native-viewpager/ViewPagerDataSource.js"],function(global, require, module, exports) {  'use strict';var _extends=Object.assign || function(target){for(var i=1;i < arguments.length;i++) {var source=arguments[i];for(var key in source) {if(Object.prototype.hasOwnProperty.call(source,key)){target[key] = source[key];}}}return target;};
+__d('react-native-viewpager/ViewPager.js',["react-native/Libraries/react-native/react-native.js","StaticRenderer","react-timer-mixin/TimerMixin.js","react-native-viewpager/DefaultViewPageIndicator.js","react-native-viewpager/ViewPagerDataSource.js"],function(global, require, module, exports) {  'use strict';var _extends=Object.assign || function(target){for(var i=1;i < arguments.length;i++) {var source=arguments[i];for(var key in source) {if(Object.prototype.hasOwnProperty.call(source,key)){target[key] = source[key];}}}return target;};
 
 var React=require('react-native/Libraries/react-native/react-native.js');var 
 
@@ -53175,6 +53184,7 @@ function(){_this2.movePage(1);},
 
 
 goToPage:function(pageNumber){
+console.log("ViewPager - goToPage called.");
 
 var pageCount=this.props.dataSource.getPageCount();
 if(pageNumber < 0 || pageNumber >= pageCount){
@@ -53187,6 +53197,7 @@ this.movePage(step);},
 
 
 movePage:function(step){var _this3=this;
+console.log("ViewPager - MovePage called.");
 var pageCount=this.props.dataSource.getPageCount();
 var pageNumber=this.state.currentPage + step;
 
@@ -53236,6 +53247,7 @@ React.createElement(DefaultViewPageIndicator,props)));}},
 
 
 _getPage:function(pageIdx){
+console.log("ViewPager - _getPage called." + pageIdx);
 var dataSource=this.props.dataSource;
 var pageID=dataSource.pageIdentities[pageIdx];
 return (
@@ -53260,6 +53272,7 @@ var bodyComponents=[];
 var pagesNum=0;
 var hasLeft=false;
 var viewWidth=this.state.viewWidth;
+console.log("ViewPager - render called." + this.state.currentPage + " PageIDS:" + pageIDs);
 
 if(pageIDs.length > 0 && viewWidth > 0){
 
@@ -53541,11 +53554,9 @@ React.createElement(Animated.View,{style:[styles.curDot,{left:left}]})));}});
 
 module.exports = DefaultViewPageIndicator;
 });
-__d('react-native-viewpager/ViewPagerDataSource.js',[],function(global, require, module, exports) {  'use strict';var _createClass=(function(){function defineProperties(target,props){for(var i=0;i < props.length;i++) {var descriptor=props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if('value' in descriptor)descriptor.writable = true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};})();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError('Cannot call a class as a function');}}
+__d('react-native-viewpager/ViewPagerDataSource.js',["warning/browser.js"],function(global, require, module, exports) {  'use strict';var _createClass=(function(){function defineProperties(target,props){for(var i=0;i < props.length;i++) {var descriptor=props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if('value' in descriptor)descriptor.writable = true;Object.defineProperty(target,descriptor.key,descriptor);}}return function(Constructor,protoProps,staticProps){if(protoProps)defineProperties(Constructor.prototype,protoProps);if(staticProps)defineProperties(Constructor,staticProps);return Constructor;};})();function _classCallCheck(instance,Constructor){if(!(instance instanceof Constructor)){throw new TypeError('Cannot call a class as a function');}}
 
-var invariant=require('invariant');
-var isEmpty=require('isEmpty');
-var warning=require('warning');
+var warning=require('warning/browser.js');
 
 function defaultGetPageData(
 dataBlob,
@@ -53662,7 +53673,7 @@ this._dirtyPages.push(!!dirty);}}}]);return ViewPagerDataSource;})();
 
 
 function keyedDictionaryFromArray(arr){
-if(isEmpty(arr)){
+if(arr.length === 0){
 return {};}
 
 var result={};
@@ -53675,6 +53686,67 @@ return result;}
 
 
 module.exports = ViewPagerDataSource;
+});
+__d('warning/browser.js',[],function(global, require, module, exports) {  'use strict';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var warning=function(){};
+
+if(process.env.NODE_ENV !== 'production'){
+warning = function(condition,format,args){
+var len=arguments.length;
+args = new Array(len > 2?len - 2:0);
+for(var key=2;key < len;key++) {
+args[key - 2] = arguments[key];}
+
+if(format === undefined){
+throw new Error(
+'`warning(condition, format, ...args)` requires a warning ' + 
+'message argument');}
+
+
+
+if(format.length < 10 || /^[s\W]*$/.test(format)){
+throw new Error(
+'The warning format should be able to uniquely identify this ' + 
+'warning. Please, use a more descriptive format than: ' + format);}
+
+
+
+if(!condition){
+var argIndex=0;
+var message='Warning: ' + 
+format.replace(/%s/g,function(){
+return args[argIndex++];});
+
+if(typeof console !== 'undefined'){
+console.error(message);}
+
+try{
+
+
+throw new Error(message);}
+catch(x) {}}};}
+
+
+
+
+module.exports = warning;
 });
 __d('ContentPortal/src/StoryScreen.js',["react-native/Libraries/react-native/react-native.js","ContentPortal/src/WebView.js"],function(global, require, module, exports) {  'use strict';
 
@@ -53916,98 +53988,6 @@ onChange:true,
 
 
 module.exports = ObservableWebView;
-});
-__d('react-timer-mixin/TimerMixin.js',[],function(global, require, module, exports) {  'use strict';
-
-
-
-
-
-
-
-
-
-
-var GLOBAL=typeof window === 'undefined'?global:window;
-
-var setter=function(_setter,_clearer,array){
-return function(callback,delta){
-var id=_setter((function(){
-_clearer.call(this,id);
-callback.apply(this,arguments);}).
-bind(this),delta);
-
-if(!this[array]){
-this[array] = [id];}else 
-{
-this[array].push(id);}
-
-return id;};};
-
-
-
-var clearer=function(_clearer,array){
-return function(id){
-if(this[array]){
-var index=this[array].indexOf(id);
-if(index !== -1){
-this[array].splice(index,1);}}
-
-
-_clearer(id);};};
-
-
-
-var _timeouts='TimerMixin_timeouts';
-var _clearTimeout=clearer(GLOBAL.clearTimeout,_timeouts);
-var _setTimeout=setter(GLOBAL.setTimeout,_clearTimeout,_timeouts);
-
-var _intervals='TimerMixin_intervals';
-var _clearInterval=clearer(GLOBAL.clearInterval,_intervals);
-var _setInterval=setter(GLOBAL.setInterval,function(){},_intervals);
-
-var _immediates='TimerMixin_immediates';
-var _clearImmediate=clearer(GLOBAL.clearImmediate,_immediates);
-var _setImmediate=setter(GLOBAL.setImmediate,_clearImmediate,_immediates);
-
-var _rafs='TimerMixin_rafs';
-var _cancelAnimationFrame=clearer(GLOBAL.cancelAnimationFrame,_rafs);
-var _requestAnimationFrame=setter(GLOBAL.requestAnimationFrame,_cancelAnimationFrame,_rafs);
-
-var TimerMixin={
-componentWillUnmount:function(){
-this[_timeouts] && this[_timeouts].forEach(function(id){
-GLOBAL.clearTimeout(id);});
-
-this[_timeouts] = null;
-this[_intervals] && this[_intervals].forEach(function(id){
-GLOBAL.clearInterval(id);});
-
-this[_intervals] = null;
-this[_immediates] && this[_immediates].forEach(function(id){
-GLOBAL.clearImmediate(id);});
-
-this[_immediates] = null;
-this[_rafs] && this[_rafs].forEach(function(id){
-GLOBAL.cancelAnimationFrame(id);});
-
-this[_rafs] = null;},
-
-
-setTimeout:_setTimeout,
-clearTimeout:_clearTimeout,
-
-setInterval:_setInterval,
-clearInterval:_clearInterval,
-
-setImmediate:_setImmediate,
-clearImmediate:_clearImmediate,
-
-requestAnimationFrame:_requestAnimationFrame,
-cancelAnimationFrame:_cancelAnimationFrame};
-
-
-module.exports = TimerMixin;
 });
 ;require("ContentPortal/index.android.js");
 //@ sourceMappingURL=/index.android.map?platform=android&dev=true

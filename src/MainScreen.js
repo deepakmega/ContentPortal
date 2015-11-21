@@ -38,25 +38,28 @@ var MainScreen = React.createClass({
       posts: INITIAL_DATA,
       post: false,
       dataSource : ds.cloneWithPages(INITIAL_DATA),
+      currentPage: null,
     };
   },
+
   render: function() {
     if ( !this.state.post ) {
       return this.renderLoadingView();
     }
     return (
-      <ViewPager
-          style = {this.props.style}
-          dataSource = {this.state.dataSource}
-          renderPage = {this.renderPost}
-          isLoop = {false}
-          autoPlay = {false}/>
+        <ViewPager
+            style={styles.listHeader}
+            ref = "_viewPager"
+            dataSource = {this.state.dataSource}
+            renderPage = {this._renderPost}
+            isLoop = {false}
+            autoPlay = {false}/>
     );
   },
-  renderPost: function(story: Object,
-    pageID: number|string) {
+  _renderPost: function(story: Object,
+    pageID: number|string,) {
     return (
-      <TouchableOpacity style={{flex: 1}} onPress={() => {this.selectStory(story)}}>
+      <TouchableHighlight style={{flex:1}} onPress={()=>{this.selectStory(story)}}>
         <View style={styles.container}>
           <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} />
           <View style={styles.textContainer}>
@@ -68,7 +71,7 @@ var MainScreen = React.createClass({
             </Text>
           </View>
         </View>
-      </TouchableOpacity>
+      </TouchableHighlight>
     );
   },
   componentDidMount: function() {
@@ -110,7 +113,7 @@ var MainScreen = React.createClass({
       this.props.navigator.push({
         title: story.title,
         name: 'story',
-        story: story,
+        story: this.refs._viewPager.getCurrentPageData(),
       });
      //}
   },
@@ -176,7 +179,7 @@ var styles = StyleSheet.create({
     margin:2,
     flex: 1, height: 200,
     borderRadius: 4
-  }
+  },
 });
 
 module.exports = MainScreen;

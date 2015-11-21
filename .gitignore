@@ -30,6 +30,9 @@ local.properties
 
 # node.js
 #
-node_modules/
+node_modules/*
+!node_modules/react-native-viewpager/
+node_modules/react-native-viewpager/*
+!node_modules/react-native-viewpager/ViewPager.js
 npm-debug.log
 
