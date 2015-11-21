@@ -59,19 +59,20 @@ var MainScreen = React.createClass({
   _renderPost: function(story: Object,
     pageID: number|string,) {
     return (
-      <TouchableHighlight style={{flex:1}} onPress={()=>{this.selectStory(story)}}>
+      
         <View style={styles.container}>
           <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} />
           <View style={styles.textContainer}>
-            <Text style={styles.title}>
-              {story.title}
-            </Text>
+            <TouchableHighlight onPress={()=>{this.selectStory(story)}}>
+              <Text style={styles.title}>
+                {story.title}
+              </Text>
+            </TouchableHighlight>
             <Text style={styles.text}>
               {story.custom_fields.content[0]}
             </Text>
           </View>
         </View>
-      </TouchableHighlight>
     );
   },
   componentDidMount: function() {
