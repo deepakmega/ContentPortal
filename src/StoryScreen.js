@@ -87,7 +87,7 @@ var StoryScreen = React.createClass({
         //   + '" /></head><body>' //+ this.state.detail.body
         //   + '</body></html>';
         console.log(this.props.story);
-        var reqUrl = 'http://googleweblight.com/?lite_url=' + this.props.story.custom_fields.content_url[0];
+        var reqUrl = this.props.story.custom_fields.content_url[0];
         return (
           <View style={styles.container}>
             <MyWebView
@@ -96,13 +96,13 @@ var StoryScreen = React.createClass({
               url={reqUrl}
               onScrollChange={this.onWebViewScroll}/>
               <View style={styles.toolbar}>
-                <View style={styles.actionsContainer}>
-                  <TouchableElement onPress={this._onPressBackButton}>
-                    <View style={styles.actionItem}>
-                      <Text>Back</Text>
-                    </View>
-                  </TouchableElement>
-                </View>
+                <TouchableElement onPress={this._onPressBackButton}>
+                  <View style={styles.actionsContainer}>                    
+                      <View style={styles.actionItem}>
+                        <Text style={styles.title}>Back</Text>
+                      </View>                    
+                  </View>
+                </TouchableElement>
               </View>
           </View>
         );
@@ -147,11 +147,11 @@ var styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'rgba(0,0,0,0.3)',
   },
-  title: {
+  backButtonText: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: '500',
-    color: 'white',
+    color: 'black',
   },
   container: {
     flex: 1,

@@ -22,6 +22,7 @@ var {
   Platform,
   TouchableHighlight,
   TouchableOpacity,
+  ViewPagerAndroid
 } = React;
 
 var ViewPager = require('react-native-viewpager');
@@ -46,15 +47,39 @@ var MainScreen = React.createClass({
     if ( !this.state.post ) {
       return this.renderLoadingView();
     }
-    return (
-        <ViewPager
-            style={styles.listHeader}
-            ref = "_viewPager"
-            dataSource = {this.state.dataSource}
-            renderPage = {this._renderPost}
-            isLoop = {false}
-            autoPlay = {false}/>
-    );
+    // return (
+    //     <ViewPager
+    //         style={styles.listHeader}
+    //         ref = "_viewPager"
+    //         dataSource = {this.state.dataSource}
+    //         renderPage = {this._renderPost}
+    //         isLoop = {true}
+    //         autoPlay = {false}/>
+    // );
+    var story = this.state.posts[0];
+    return(
+      <ViewPagerAndroid style={{flex:1}}>
+        {
+          this.state.posts.map(function(story: Object){
+            return (
+              <View style={styles.container}>
+                <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} />
+                <View style={styles.textContainer}>
+                  <TouchableHighlight onPress={()=>{this.selectStory(story)}}>
+                    <Text style={styles.title}>
+                      {story.title}
+                    </Text>
+                  </TouchableHighlight>
+                  <Text style={styles.text}>
+                    {story.custom_fields.content[0]}
+                  </Text>
+                </View>
+              </View>
+              );
+          }, this)
+        }
+      </ViewPagerAndroid>
+      );
   },
   _renderPost: function(story: Object,
     pageID: number|string,) {
@@ -84,7 +109,7 @@ var MainScreen = React.createClass({
       .then((responseData) => {
           this.setState({
               //post: { title: responseData.posts[1].title, content: responseData.posts[1].custom_fields.content[0], image: responseData.posts[1].attachments[0].url },
-              //posts: responseData.posts,
+              posts: responseData.posts,
               dataSource: ds.cloneWithPages(responseData.posts),
           }, function(){
             TOTAL_POST_COUNT = responseData.count;
@@ -114,7 +139,7 @@ var MainScreen = React.createClass({
       this.props.navigator.push({
         title: story.title,
         name: 'story',
-        story: this.refs._viewPager.getCurrentPageData(),
+        story: story,
       });
      //}
   },

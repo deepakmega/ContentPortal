@@ -52897,7 +52897,9 @@ getInitialState:function(){
 return {
 posts:INITIAL_DATA,
 post:false,
-dataSource:ds.cloneWithPages(INITIAL_DATA)};},
+dataSource:ds.cloneWithPages(INITIAL_DATA),
+currentPage:null};},
+
 
 
 render:function(){
@@ -52905,31 +52907,29 @@ if(!this.state.post){
 return this.renderLoadingView();}
 
 return (
-React.createElement(View,{style:{flex:1}},
 React.createElement(ViewPager,{
 style:styles.listHeader,
+ref:'_viewPager',
 dataSource:this.state.dataSource,
 renderPage:this._renderPost,
 isLoop:false,
-autoPlay:false})));},
-
+autoPlay:false}));},
 
 
 _renderPost:function(story,
 pageID){var _this=this;
 return (
-React.createElement(TouchableOpacity,{style:{flex:1},onPress:function(){_this.selectStory(story);}},
-React.createElement(View,{style:styles.headerItem},
+
 React.createElement(View,{style:styles.container},
 React.createElement(Image,{style:styles.image,resizeMode:Image.resizeMode.stretch,source:{uri:this.findImageAttachment(story.custom_fields.image_url[0],story.attachments)}}),
 React.createElement(View,{style:styles.textContainer},
+React.createElement(TouchableHighlight,{onPress:function(){_this.selectStory(story);}},
 React.createElement(Text,{style:styles.title},
-story.title),
+story.title)),
+
 
 React.createElement(Text,{style:styles.text},
-story.custom_fields.content[0]))))));},
-
-
+story.custom_fields.content[0]))));},
 
 
 
@@ -52974,7 +52974,7 @@ story.read = true;
 this.props.navigator.push({
 title:story.title,
 name:'story',
-story:story});},
+story:this.refs._viewPager.getCurrentPageData()});},
 
 
 
@@ -53039,12 +53039,7 @@ color:'#666666'},
 image:{
 margin:2,
 flex:1,height:200,
-borderRadius:4},
-
-headerItem:{
-flex:1,
-height:200,
-flexDirection:'row'}});
+borderRadius:4}});
 
 
 
@@ -53184,7 +53179,6 @@ function(){_this2.movePage(1);},
 
 
 goToPage:function(pageNumber){
-console.log("ViewPager - goToPage called.");
 
 var pageCount=this.props.dataSource.getPageCount();
 if(pageNumber < 0 || pageNumber >= pageCount){
@@ -53197,7 +53191,6 @@ this.movePage(step);},
 
 
 movePage:function(step){var _this3=this;
-console.log("ViewPager - MovePage called.");
 var pageCount=this.props.dataSource.getPageCount();
 var pageNumber=this.state.currentPage + step;
 
@@ -53219,7 +53212,7 @@ if(pageNumber > 0 || this.props.isLoop){
 nextChildIdx = 1;}
 
 
-Animated.spring(this.state.scrollValue,{toValue:scrollStep,friction:10,tension:50}).
+Animated.spring(this.state.scrollValue,{toValue:scrollStep,speed:40,bounciness:0}).
 start(function(event){
 if(event.finished){
 _this3.state.fling = false;
@@ -53246,8 +53239,13 @@ React.createElement(DefaultViewPageIndicator,props)));}},
 
 
 
+getCurrentPageData:function(){
+var dataSource=this.props.dataSource;
+var pageID=dataSource.pageIdentities[this.state.currentPage];
+return dataSource.getPageData(pageID);},
+
+
 _getPage:function(pageIdx){
-console.log("ViewPager - _getPage called." + pageIdx);
 var dataSource=this.props.dataSource;
 var pageID=dataSource.pageIdentities[pageIdx];
 return (
@@ -53272,7 +53270,6 @@ var bodyComponents=[];
 var pagesNum=0;
 var hasLeft=false;
 var viewWidth=this.state.viewWidth;
-console.log("ViewPager - render called." + this.state.currentPage + " PageIDS:" + pageIDs);
 
 if(pageIDs.length > 0 && viewWidth > 0){
 
