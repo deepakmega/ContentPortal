@@ -15,6 +15,7 @@ var REQUEST_URL = 'http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/Content
 
 var React = require('react-native');
 var {
+  Dimensions,
   Image,
   StyleSheet,
   Text,
@@ -22,11 +23,14 @@ var {
   Platform,
   TouchableHighlight,
   TouchableOpacity,
+  ScrollView,
   ViewPagerAndroid
 } = React;
 
 var ViewPager = require('react-native-viewpager');
+var WindowSize = Dimensions.get('window');
 var StoryScreen = require('./StoryScreen');
+var ScrollPager = (Platform.OS === 'ios') ? ScrollView : ViewPagerAndroid;
 
 var ds = new ViewPager.DataSource({
       pageHasChanged: (p1, p2) => p1 !== p2,
@@ -47,18 +51,9 @@ var MainScreen = React.createClass({
     if ( !this.state.post ) {
       return this.renderLoadingView();
     }
-    // return (
-    //     <ViewPager
-    //         style={styles.listHeader}
-    //         ref = "_viewPager"
-    //         dataSource = {this.state.dataSource}
-    //         renderPage = {this._renderPost}
-    //         isLoop = {true}
-    //         autoPlay = {false}/>
-    // );
-    var story = this.state.posts[0];
+
     return(
-      <ViewPagerAndroid style={{flex:1}}>
+      <ScrollPager style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
         {
           this.state.posts.map(function(story: Object){
             return (
@@ -78,7 +73,7 @@ var MainScreen = React.createClass({
               );
           }, this)
         }
-      </ViewPagerAndroid>
+      </ScrollPager>
       );
   },
   _renderPost: function(story: Object,
@@ -161,12 +156,14 @@ var windowSize = Dimensions.get('window');
 
 var styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: .8,
     justifyContent: 'center',    
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
     borderRadius: 8,
     borderColor: '#000000',
+    width: windowSize.width,
+    height: windowSize.height-2,
   },
   textContainer: {
     flex: 1,
@@ -205,6 +202,13 @@ var styles = StyleSheet.create({
     margin:2,
     flex: 1, height: 200,
     borderRadius: 4
+  },
+  scrollView: {
+    backgroundColor: '#6A85B1',
+    height: 300,
+  },
+  horizontalScrollView: {
+    height: 120,
   },
 });
 

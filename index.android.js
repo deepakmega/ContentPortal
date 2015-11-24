@@ -33,18 +33,14 @@ var ContentPortal = React.createClass({
 		_navigator = navigationOperations;
 		if(route.name === 'home'){
 			return ( 
-				<View style={styles.container}>
-					<MainScreen navigator={navigationOperations}/>
-				</View> 
+				<MainScreen navigator={navigationOperations}/>
 				);
 		} else if (route.name === 'story'){
 			return (
-				<View style={styles.container}>
 				  <StoryScreen
 				    style={{flex: 1}}
 				    navigator={navigationOperations}
 				    story={route.story} />
-				</View>
 				);
 		}
 	},
@@ -65,12 +61,7 @@ var styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: '#000000'
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
+  }
 });
 
 AppRegistry.registerComponent('ContentPortal', () => ContentPortal);
