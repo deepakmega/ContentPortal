@@ -53,12 +53,20 @@ var MainScreen = React.createClass({
     }
 
     return(
-      <ScrollPager style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
+      <View style={styles.container}>
+      <View style={styles.topMenuContainer}>
+        <Text> Categories </Text>
+        <View style={[{justifyContent: 'space-between' ,flexDirection: 'row'}]}>
+          <Text onPress={()=>{this.refs._scrollPager.setPage(0)}}> GotoFirst </Text>
+          <Text style={{paddingRight: 10,}}> Options </Text>
+        </View>
+      </View>
+      <ScrollPager ref='_scrollPager' style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
         {
           this.state.posts.map(function(story: Object){
             return (
-              <View style={styles.container}>
-                <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} />
+              <View>
+                <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} onPress={()=>{this.toggleMenu()}}/>
                 <View style={styles.textContainer}>
                   <TouchableHighlight onPress={()=>{this.selectStory(story)}}>
                     <Text style={styles.title}>
@@ -74,26 +82,8 @@ var MainScreen = React.createClass({
           }, this)
         }
       </ScrollPager>
+      </View>
       );
-  },
-  _renderPost: function(story: Object,
-    pageID: number|string,) {
-    return (
-      
-        <View style={styles.container}>
-          <Image style={styles.image} resizeMode={Image.resizeMode.stretch} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} />
-          <View style={styles.textContainer}>
-            <TouchableHighlight onPress={()=>{this.selectStory(story)}}>
-              <Text style={styles.title}>
-                {story.title}
-              </Text>
-            </TouchableHighlight>
-            <Text style={styles.text}>
-              {story.custom_fields.content[0]}
-            </Text>
-          </View>
-        </View>
-    );
   },
   componentDidMount: function() {
       this.fetchData();
@@ -156,7 +146,7 @@ var windowSize = Dimensions.get('window');
 
 var styles = StyleSheet.create({
   container: {
-    flex: .8,
+    flex: 1,
     justifyContent: 'center',    
     backgroundColor: '#FFFFFF',
     borderWidth: 2,
@@ -210,6 +200,14 @@ var styles = StyleSheet.create({
   horizontalScrollView: {
     height: 120,
   },
+  topMenuContainer:{
+    backgroundColor: 'white',
+    flex: .05, 
+    justifyContent: 'space-between',
+    borderRadius: 8, 
+    alignItems: 'center',
+    flexDirection: 'row'
+  }
 });
 
 module.exports = MainScreen;
