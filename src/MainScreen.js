@@ -58,7 +58,7 @@ var MainScreen = React.createClass({
         <View style={styles.topMenuContainer}>
           <Text> Categories </Text>
           <View style={{justifyContent: 'space-between' ,flexDirection: 'row'}}>
-            <Text onPress={()=>{this.refs._scrollPager.setPage(0)}}> GotoFirst </Text>
+            <Text onPress={()=>{this.scrollToFirst()}}> GotoFirst </Text>
             <Text style={{paddingRight: 10,}}> Options </Text>
           </View>
         </View>
@@ -67,7 +67,7 @@ var MainScreen = React.createClass({
           {
             this.state.posts.map(function(story: Object){
               return (
-                <View>
+                <View key={story.id} style={{flex:1,width: windowSize.width, height: windowSize.height-40}}>
                   <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} onPress={()=>{this.toggleMenu()}}/>
                   <View style={styles.textContainer}>
                     <TouchableHighlight>
@@ -150,6 +150,14 @@ var MainScreen = React.createClass({
      
     return attachments[0].url;
   },
+  scrollToFirst : function(){
+    if(Platform.OS==='ios'){
+      this.refs._scrollPager.scrollTo(0,0);
+    }
+    else{
+      this.refs._scrollPager.setPage(0);
+    }
+  }
 });
 
 
@@ -161,11 +169,9 @@ var styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',    
     backgroundColor: '#FFFFFF',
-    borderWidth: 2,
+    borderTopWidth: 2,
     borderRadius: 8,
-    borderColor: '#000000',
-    width: windowSize.width,
-    height: windowSize.height-2,
+    borderColor: '#000000'
   },
   textContainer: {
     flex: 1,
@@ -201,7 +207,7 @@ var styles = StyleSheet.create({
     color: '#666666',
   },
   image: {
-    margin:2,
+    margin:3,
     flex: 1, height: 200,
     borderRadius: 4
   },
