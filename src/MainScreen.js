@@ -54,34 +54,46 @@ var MainScreen = React.createClass({
 
     return(
       <View style={styles.container}>
-      <View style={styles.topMenuContainer}>
-        <Text> Categories </Text>
-        <View style={[{justifyContent: 'space-between' ,flexDirection: 'row'}]}>
-          <Text onPress={()=>{this.refs._scrollPager.setPage(0)}}> GotoFirst </Text>
-          <Text style={{paddingRight: 10,}}> Options </Text>
+
+        <View style={styles.topMenuContainer}>
+          <Text> Categories </Text>
+          <View style={{justifyContent: 'space-between' ,flexDirection: 'row'}}>
+            <Text onPress={()=>{this.refs._scrollPager.setPage(0)}}> GotoFirst </Text>
+            <Text style={{paddingRight: 10,}}> Options </Text>
+          </View>
         </View>
-      </View>
-      <ScrollPager ref='_scrollPager' style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
-        {
-          this.state.posts.map(function(story: Object){
-            return (
-              <View>
-                <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} onPress={()=>{this.toggleMenu()}}/>
-                <View style={styles.textContainer}>
-                  <TouchableHighlight onPress={()=>{this.selectStory(story)}}>
-                    <Text style={styles.title}>
-                      {story.title}
+
+        <ScrollPager ref='_scrollPager' style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
+          {
+            this.state.posts.map(function(story: Object){
+              return (
+                <View>
+                  <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} onPress={()=>{this.toggleMenu()}}/>
+                  <View style={styles.textContainer}>
+                    <TouchableHighlight>
+                      <Text style={styles.title}>
+                        {story.title}
+                      </Text>
+                    </TouchableHighlight>
+                    <Text style={styles.text}>
+                      {story.custom_fields.content[0]}
                     </Text>
-                  </TouchableHighlight>
-                  <Text style={styles.text}>
-                    {story.custom_fields.content[0]}
-                  </Text>
+                  </View>
+                  <View style= {{flex: .1, padding: 10}}>
+                    <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
+                      <Text>By: {story.author.name}</Text>
+                      <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.custom_fields.content_host[0]}</Text>
+                      <Text>Share</Text>
+                    </View>
+                  </View>                
                 </View>
-              </View>
-              );
-          }, this)
-        }
-      </ScrollPager>
+                );
+            }, this)
+          }
+        </ScrollPager>
+
+
+
       </View>
       );
   },
