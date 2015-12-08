@@ -12,6 +12,7 @@ var {
   View,
   Navigator,
   StyleSheet,
+  StatusBarIOS
 } = React;
 
 var MainScreen = require('./src/MainScreen');
@@ -39,6 +40,7 @@ var ContentPortal = React.createClass({
 	},
   render: function() {
   	var initialRoute = {name: 'home'};
+    StatusBarIOS.setHidden(true);
     return (
         <Navigator
           style={styles.container}
