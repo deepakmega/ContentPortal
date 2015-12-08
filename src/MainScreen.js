@@ -27,14 +27,11 @@ var {
   ViewPagerAndroid
 } = React;
 
-var ViewPager = require('react-native-viewpager');
+//var Icon = require('react-native-vector-icons/FontAwesome');
 var WindowSize = Dimensions.get('window');
 var StoryScreen = require('./StoryScreen');
 var ScrollPager = (Platform.OS === 'ios') ? ScrollView : ViewPagerAndroid;
-
-var ds = new ViewPager.DataSource({
-      pageHasChanged: (p1, p2) => p1 !== p2,
-    });
+var Icon = require('react-native-vector-icons/MaterialIcons');
 
 var MainScreen = React.createClass({
   getInitialState: function() {
@@ -42,7 +39,6 @@ var MainScreen = React.createClass({
     return {
       posts: INITIAL_DATA,
       post: false,
-      dataSource : ds.cloneWithPages(INITIAL_DATA),
       currentPage: null,
     };
   },
@@ -53,13 +49,14 @@ var MainScreen = React.createClass({
     }
 
     return(
-      <View style={styles.container}>
+<View style={styles.container}>
 
         <View style={styles.topMenuContainer}>
-          <Text> Categories </Text>
+          <Icon name="menu" style={{marginLeft: 10,marginTop:-10}} size={26}/>
           <View style={{justifyContent: 'space-between' ,flexDirection: 'row'}}>
-            <Text onPress={()=>{this.scrollToFirst()}}> GotoFirst </Text>
-            <Text style={{paddingRight: 10,}}> Options </Text>
+
+            <Icon name="skip-previous" style={{paddingRight: 20,marginTop:-10}} onPress={()=>{this.scrollToFirst()}} size={26} />
+            <Icon name="more-vert" style={{paddingRight: 10,marginTop:-5}} size={20}/>
           </View>
         </View>
 
@@ -70,11 +67,9 @@ var MainScreen = React.createClass({
                 <View key={story.id} style={{flex:1,width: windowSize.width, height: windowSize.height-40}}>
                   <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}} onPress={()=>{this.toggleMenu()}}/>
                   <View style={styles.textContainer}>
-                    <TouchableHighlight>
                       <Text style={styles.title}>
                         {story.title}
                       </Text>
-                    </TouchableHighlight>
                     <Text style={styles.text}>
                       {story.custom_fields.content[0]}
                     </Text>
@@ -83,7 +78,7 @@ var MainScreen = React.createClass({
                     <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
                       <Text>By: {story.author.name}</Text>
                       <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.custom_fields.content_host[0]}</Text>
-                      <Text>Share</Text>
+                      <Icon name="share" style={{paddingRight: 10,marginTop:-12}} size={24}/>
                     </View>
                   </View>                
                 </View>
@@ -107,7 +102,6 @@ var MainScreen = React.createClass({
           this.setState({
               //post: { title: responseData.posts[1].title, content: responseData.posts[1].custom_fields.content[0], image: responseData.posts[1].attachments[0].url },
               posts: responseData.posts,
-              dataSource: ds.cloneWithPages(responseData.posts),
           }, function(){
             TOTAL_POST_COUNT = responseData.count;
             this.setState({post: true},);

@@ -20,32 +20,32 @@ var StoryScreen = require('./src/StoryScreen');
 
 var _navigator;
 BackAndroid.addEventListener("hardwareBackPress", function(){
-	if (_navigator && _navigator.getCurrentRoutes().length > 1){
-		_navigator.pop();
-		return true;
-	}
-	return false;
+  if (_navigator && _navigator.getCurrentRoutes().length > 1){
+    _navigator.pop();
+    return true;
+  }
+  return false;
 });
 
 var ContentPortal = React.createClass({
-	mixins: TimerMixin,
-	RouteMapper: function(route, navigationOperations, onComponentRef){
-		_navigator = navigationOperations;
-		if(route.name === 'home'){
-			return ( 
-				<MainScreen navigator={navigationOperations}/>
-				);
-		} else if (route.name === 'story'){
-			return (
-				  <StoryScreen
-				    style={{flex: 1}}
-				    navigator={navigationOperations}
-				    story={route.story} />
-				);
-		}
-	},
+  mixins: TimerMixin,
+  RouteMapper: function(route, navigationOperations, onComponentRef){
+    _navigator = navigationOperations;
+    if(route.name === 'home'){
+      return ( 
+        <MainScreen navigator={navigationOperations}/>
+        );
+    } else if (route.name === 'story'){
+      return (
+          <StoryScreen
+            style={{flex: 1}}
+            navigator={navigationOperations}
+            story={route.story} />
+        );
+    }
+  },
   render: function() {
-  	var initialRoute = {name: 'home'};
+    var initialRoute = {name: 'home'};
     return (
         <Navigator
           style={styles.container}
@@ -53,7 +53,7 @@ var ContentPortal = React.createClass({
           configureScene={() => Navigator.SceneConfigs.FadeAndroid}
           renderScene={this.RouteMapper}/>
       );
-	},
+  },
 });
 
 var styles = StyleSheet.create({
