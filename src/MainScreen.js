@@ -48,15 +48,19 @@ var MainScreen = React.createClass({
       return this.renderLoadingView();
     }
 
+    // Check if this is fixed in later versions of react native vector icons
+    var lineHeight26 = this.calculateLineHeight(26);
+    var lineHeight24 = this.calculateLineHeight(24);
+
     return(
     <View style={styles.container}>
 
         <View style={styles.topMenuContainer}>
-          <Icon name="menu" style={{marginLeft: 10,textAlign:'center', lineHeight:26, height:26}} size={26}/>
+          <Icon name="menu" style={{marginLeft: 10,textAlign:'center', lineHeight:lineHeight26}} size={26}/>
           <View style={{justifyContent: 'space-between' ,flexDirection: 'row'}}>
 
-            <Icon name="skip-previous" style={{paddingRight: 20, lineHeight:26, height:26}} onPress={()=>{this.scrollToFirst()}} size={26} />
-            <Icon name="more-vert" style={{paddingRight: 10, lineHeight:26, height:26}} size={26}/>
+            <Icon name="skip-previous" style={{paddingRight: 20, lineHeight:lineHeight26}} onPress={()=>{this.scrollToFirst()}} size={26} />
+            <Icon name="more-vert" style={{paddingRight: 10, lineHeight:lineHeight26}} size={26}/>
           </View>
         </View>
 
@@ -78,7 +82,7 @@ var MainScreen = React.createClass({
                     <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
                       <Text>By: {story.author.name}</Text>
                       <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.custom_fields.content_host[0]}</Text>
-                      <Icon name="share" style={{paddingRight: 10, lineHeight:24, height:24}} size={24}/>
+                      <Icon name="share" style={{paddingRight: 10, marginTop:-10}} size={24}/>
                     </View>
                   </View>                
                 </View>
@@ -150,6 +154,15 @@ var MainScreen = React.createClass({
     }
     else{
       this.refs._scrollPager.setPage(0);
+    }
+  },
+  calculateLineHeight : function(size: number){
+    // Hack for react-native-vector-icons to align middle vertically. Use this to set the height & lineHeight property.
+    if(Platform.OS==='ios'){
+      return size;
+    }
+    else{
+      return size * 2;
     }
   }
 });
