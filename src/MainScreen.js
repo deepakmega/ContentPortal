@@ -32,7 +32,7 @@ var {
 
 //var Icon = require('react-native-vector-icons/FontAwesome');
 var WindowSize = Dimensions.get('window');
-var StoryScreen = require('./StoryScreen');
+var MenuScreen=require('./Menu');
 var ScrollPager = (Platform.OS === 'ios') ? ScrollView : ViewPagerAndroid;
 var Icon = require('react-native-vector-icons/MaterialIcons');
 
@@ -71,74 +71,36 @@ var MainScreen = React.createClass({
         </View>
 
         <View style={{flex:1}}>
-        <ScrollPager ref='_scrollPager' style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
-          {
-            this.state.posts.map(function(story: Object){
-              return (
-                <View key={story.id} style={{flex:1,width: WindowSize.width, height: WindowSize.height-40}}>
-                  <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri: this.findImageAttachment(story.custom_fields.image_url[0], story.attachments)}}/>
-                  <View style={styles.textContainer}>
-                      <Text style={styles.title}>
-                        {story.title}
+          <ScrollPager ref='_scrollPager' style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
+            {
+              this.state.posts.map(function(story: Object){
+                return (
+                  <View key={story.id} style={{flex:1,width: WindowSize.width, height: WindowSize.height-40}}>
+                    <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri:story.custom_fields.image_url[0]}}/>
+                    <View style={styles.textContainer}>
+                        <Text style={styles.title} numberOfLines={1}>
+                          {story.title}
+                        </Text>
+                      <Text style={styles.text}  numberOfLines={10}>
+                        {story.custom_fields.content[0]}
                       </Text>
-                    <Text style={styles.text}>
-                      {story.custom_fields.content[0]}
-                    </Text>
-                  </View>
-                  <View style= {{flex: .1, padding: 10}}>
-                    <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
-                      <Text>By: {story.author.name}</Text>
-                      <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.custom_fields.content_host[0]}</Text>
-                      <Icon name="share" style={{paddingRight: 10, marginTop:-10}} size={24}/>
+                    </View>
+                    <View style= {{flex: .1, padding: 10}}>
+                      <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
+                        <Text>By: {story.author.name}</Text>
+                        <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.custom_fields.content_host[0]}</Text>
+                        <Icon name="share" style={{paddingRight: 10, marginTop:-10}} size={24}/>
+                      </View>
                     </View>
                   </View>
-                </View>
-                );
-            }, this)
-          }
-        </ScrollPager>
+                  );
+              }, this)
+            }
+          </ScrollPager>
 
-        <Animated.View style={[styles.toggleMenu, {height: this.state.menuHeight}]} >
-          <View>
-            <View style={{marginTop: 50, padding: 30, flexDirection: 'column'}}>
-              <View style={{padding: 5, paddingTop: 15}}>
-                <Text style={{color: '#FFF', fontSize:24}}>Categories</Text>
-              </View>
-              <View  style= {{borderTopWidth:1, borderColor: 'white', flexDirection: 'column'}}>  
-                <TouchableHighlight onPress={this.handlePress} underlayColor="#1caf9a">
-                  <View style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{color: '#FFF', fontSize:18}}><Icon name="face" style={{paddingRight: 10}} size={18}/> .NET</Text>
-                    <Text style={{color: '#FFF', fontSize:18, textAlign: 'right'}}>55</Text>
-                  </View>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.handlePress} underlayColor="#1caf9a">
-                  <View style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{color: '#FFF', fontSize:18}}><Icon name="fiber-new" style={{paddingRight: 10}} size={18}/> JAVA</Text>
-                    <Text style={{color: '#FFF', fontSize:18, textAlign: 'right'}}>55</Text>
-                  </View>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.handlePress} underlayColor="#1caf9a">
-                  <View style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{color: '#FFF', fontSize:18}}><Icon name="pets" style={{paddingRight: 10}} size={18}/> SQL</Text>
-                    <Text style={{color: '#FFF', fontSize:18, textAlign: 'right'}}>55</Text>
-                  </View>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.handlePress} underlayColor="#1caf9a">
-                  <View style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{color: '#FFF', fontSize:18}}><Icon name="language" style={{paddingRight: 10}} size={18}/> Web</Text>
-                    <Text style={{color: '#FFF', fontSize:18, textAlign: 'right'}}>55</Text>
-                  </View>
-                </TouchableHighlight>
-                <TouchableHighlight onPress={this.handlePress} underlayColor="#1caf9a">
-                  <View style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{color: '#FFF', fontSize:18}}><Icon name="smartphone" style={{paddingRight: 10}} size={18}/> Mobile</Text>
-                    <Text style={{color: '#FFF', fontSize:18, textAlign: 'right'}}>55</Text>
-                  </View>
-                </TouchableHighlight>
-              </View>
-            </View>
-          </View>
-        </Animated.View>
+          <Animated.View style={[styles.toggleMenu, {height: this.state.menuHeight}]} >
+            <MenuScreen/>
+          </Animated.View>
         </View>
 
       </View>
@@ -152,7 +114,6 @@ var MainScreen = React.createClass({
       .then((response) => response.json())
       .then((responseData) => {
           this.setState({
-              //post: { title: responseData.posts[1].title, content: responseData.posts[1].custom_fields.content[0], image: responseData.posts[1].attachments[0].url },
               posts: responseData.posts,
           }, function(){
             TOTAL_POST_COUNT = responseData.count;
@@ -172,29 +133,11 @@ var MainScreen = React.createClass({
   },
   selectStory: function(story: Object){
     story.read = true;
-     // if (Platform.OS === 'ios') {
-     //   this.props.navigator.push({
-     //     title: story.title,
-     //     component: StoryScreen,
-     //     passProps: {story},
-     //   });
-     // } else {
       this.props.navigator.push({
         title: story.title,
         name: 'story',
         story: story,
       });
-     //}
-  },
-  findImageAttachment : function(id: number, attachments: Array<Object>){
-    var i = null;
-    for (i = 0; attachments.length > i; i += 1) {
-        if (attachments[i].id === parseInt(id)) {
-            return attachments[i].url;
-        }
-    }
-     
-    return attachments[0].url;
   },
   scrollToFirst : function(){
     if(Platform.OS==='ios'){
@@ -215,7 +158,6 @@ var MainScreen = React.createClass({
   },
   toggleMenu: function()
   {
-    console.log(this.state.menuToggle);
     LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
     if(this.state.menuHeight === 1){
       this.setState({menuHeight: WindowSize.height});
