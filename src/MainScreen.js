@@ -42,7 +42,7 @@ var MainScreen = React.createClass({
       posts: INITIAL_DATA,
       post: false,
       currentPage: null,
-      menuHeight: 1,
+      menuHeight: 0.1,
       slideValue: new Animated.Value(0),
     };
   },
@@ -159,11 +159,11 @@ var MainScreen = React.createClass({
   toggleMenu: function()
   {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
-    if(this.state.menuHeight === 1){
+    if(this.state.menuHeight === 0.1){
       this.setState({menuHeight: WindowSize.height});
     }
     else{
-      this.setState({menuHeight: 1});
+      this.setState({menuHeight: 0.1});
     }
   }
 });
@@ -240,7 +240,8 @@ var styles = StyleSheet.create({
     height: WindowSize.height,
     backgroundColor: '#2b3643',
     opacity:0.95,
-    padding:0
+    padding:0,
+    overflow:'hidden'
   }
 });
 
