@@ -35,9 +35,17 @@ var WindowSize = Dimensions.get('window');
 var MenuScreen=require('./Menu');
 var ScrollPager = (Platform.OS === 'ios') ? ScrollView : ViewPagerAndroid;
 var Icon = require('react-native-vector-icons/MaterialIcons');
+var Parse = require('parse/react-native');
+var ParseReact = require('parse-react/react-native');
+
+Parse.initialize(
+  'xx',
+  'xxxx'
+);
 
 var MainScreen = React.createClass({
-  getInitialState: function() {    
+  mixins: [ParseReact.Mixin],
+  getInitialState: function() {
     return {
       posts: INITIAL_DATA,
       post: false,
@@ -45,6 +53,10 @@ var MainScreen = React.createClass({
       menuHeight: 0.1,
       slideValue: new Animated.Value(0),
     };
+  },
+  observe: function(props, state) {
+    var listingQuery = (new Parse.Query('Post'));
+    return state.isLoading ?  { listings: listingQuery } : null;
   },
   componentWillMount(){
     // Animate creation
@@ -174,7 +186,7 @@ var Dimensions = require('Dimensions');
 var styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',    
+    justifyContent: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     borderColor: '#000000'
@@ -191,7 +203,7 @@ var styles = StyleSheet.create({
     marginTop: 15,
   },
   text: {
-    fontSize: 12,    
+    fontSize: 12,
     textAlign: 'left',
     color: '#333333',
     marginBottom: 5,
@@ -226,9 +238,9 @@ var styles = StyleSheet.create({
   },
   topMenuContainer:{
     backgroundColor: 'transparent',
-    flex: .05, 
+    flex: .05,
     justifyContent: 'space-between',
-    borderRadius: 8, 
+    borderRadius: 8,
     alignItems: 'center',
     flexDirection: 'row'
   },
