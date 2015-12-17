@@ -37,10 +37,12 @@ var ScrollPager = (Platform.OS === 'ios') ? ScrollView : ViewPagerAndroid;
 var Icon = require('react-native-vector-icons/MaterialIcons');
 var Parse = require('parse/react-native');
 var ParseReact = require('parse-react/react-native');
+var confModule = require('./Config');
+var Config = new confModule();
 
 Parse.initialize(
-  'xx',
-  'xxxx'
+  Config.TOKEN,
+  Config.APPKEY
 );
 
 var MainScreen = React.createClass({
