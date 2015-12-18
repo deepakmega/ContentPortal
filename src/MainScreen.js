@@ -38,6 +38,7 @@ var Icon = require('react-native-vector-icons/MaterialIcons');
 var Parse = require('parse/react-native');
 var ParseReact = require('parse-react/react-native');
 var confModule = require('./Config');
+var StorageHelper = require('./utils/AsyncStorageWrapper');
 var Config = new confModule();
 
 Parse.initialize(
@@ -48,31 +49,39 @@ Parse.initialize(
 var MainScreen = React.createClass({
   mixins: [ParseReact.Mixin],
   getInitialState: function() {
+    StorageHelper.get("posts").then((value) =>{
+          this.setState({"posts": value});
+    });
     return {
-      posts: INITIAL_DATA,
-      post: false,
-      currentPage: null,
+      post: true,
       menuHeight: 0.1,
       slideValue: new Animated.Value(0),
     };
   },
   observe: function(props, state) {
     var listingQuery = (new Parse.Query('Post'));
-    return state.isLoading ?  { listings: listingQuery } : null;
+    listingQuery = listingQuery.descending('createdAt');
+    listingQuery = listingQuery.limit(300);
+    return { listings: listingQuery };
   },
   componentWillMount(){
     // Animate creation
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
   },
+  componentDidUpdate(){
+     if(this.data.listings.length>0){
+        StorageHelper.save("posts", this.data.listings);
+      }
+  },
   render: function() {
-    if ( !this.state.post ) {
+    if ( !this.pendingQueries().length == 0 ) {
       return this.renderLoadingView();
     }
 
     // Check if this is fixed in later versions of react native vector icons
     var lineHeight26 = this.calculateLineHeight(26);
     var lineHeight24 = this.calculateLineHeight(24);
-
+    var bindingData = this.data.listings.length > 0 ? this.data.listings : this.state.posts;
     return(
     <View style={styles.container}>
 
@@ -87,22 +96,22 @@ var MainScreen = React.createClass({
         <View style={{flex:1}}>
           <ScrollPager ref='_scrollPager' style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
             {
-              this.state.posts.map(function(story: Object){
+              bindingData.map(function(story: Object){
                 return (
-                  <View key={story.id} style={{flex:1,width: WindowSize.width, height: WindowSize.height-40}}>
-                    <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri:story.custom_fields.image_url[0]}}/>
+                  <View key={story.objectId} style={{flex:1,width: WindowSize.width, height: WindowSize.height-40}}>
+                    <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri:story.image_url}}/>
                     <View style={styles.textContainer}>
                         <Text style={styles.title} numberOfLines={1}>
                           {story.title}
                         </Text>
                       <Text style={styles.text}  numberOfLines={10}>
-                        {story.custom_fields.content[0]}
+                        {story.content}
                       </Text>
                     </View>
                     <View style= {{flex: .1, padding: 10}}>
                       <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
-                        <Text>By: {story.author.name}</Text>
-                        <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.custom_fields.content_host[0]}</Text>
+                        <Text>By: {story.authorName}</Text>
+                        <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.content_host}</Text>
                         <Icon name="share" style={{paddingRight: 10, marginTop:-10}} size={24}/>
                       </View>
                     </View>
@@ -121,20 +130,6 @@ var MainScreen = React.createClass({
       );
   },
   componentDidMount: function() {
-      this.fetchData();
-  },
-  fetchData: function() {
-      fetch(REQUEST_URL)
-      .then((response) => response.json())
-      .then((responseData) => {
-          this.setState({
-              posts: responseData.posts,
-          }, function(){
-            TOTAL_POST_COUNT = responseData.count;
-            this.setState({post: true},);
-          });
-      })
-      .done();
   },
   renderLoadingView: function() {
     return (
@@ -146,7 +141,6 @@ var MainScreen = React.createClass({
     );
   },
   selectStory: function(story: Object){
-    story.read = true;
       this.props.navigator.push({
         title: story.title,
         name: 'story',
@@ -181,9 +175,6 @@ var MainScreen = React.createClass({
     }
   }
 });
-
-
-var Dimensions = require('Dimensions');
 
 var styles = StyleSheet.create({
   container: {

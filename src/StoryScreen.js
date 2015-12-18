@@ -33,27 +33,6 @@ var StoryScreen = React.createClass({
     console.log("component mounted");
 
   },
-  fetchStroyDetail: function() {
-    var reqUrl = 'http://google.com';
-    this.setState({
-      isLoading: true,
-      detail: null,
-    });
-    fetch(reqUrl)
-      .catch((error) => {
-        this.setState({
-          isLoading: false,
-          detail: null,
-        });
-      })
-      .then((responseData) => {
-        this.setState({
-          isLoading: false,
-          detail: responseData,
-        });
-      })
-      .done();
-  },
   onWebViewScroll: function(event) {
     //console.log('ScrollY: ' + event);
     var scrollY = -event / PIXELRATIO;
@@ -88,7 +67,7 @@ var StoryScreen = React.createClass({
         //   + '" /></head><body>' //+ this.state.detail.body
         //   + '</body></html>';
         console.log(this.props.story);
-        var reqUrl = this.props.story.custom_fields.content_url[0];
+        var reqUrl = this.props.story.content_url;
         return (
           <View style={styles.container}>
             <MyWebView
@@ -98,10 +77,10 @@ var StoryScreen = React.createClass({
               onScrollChange={this.onWebViewScroll}/>
               <View style={styles.toolbar}>
                 <TouchableElement onPress={this._onPressBackButton}>
-                  <View style={styles.actionsContainer}>                    
+                  <View style={styles.actionsContainer}>
                       <View style={styles.actionItem}>
                         <Text style={styles.title}>Back</Text>
-                      </View>                    
+                      </View>
                   </View>
                 </TouchableElement>
               </View>
