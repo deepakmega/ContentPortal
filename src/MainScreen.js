@@ -4,15 +4,6 @@
  */
 'use strict';
 
-var INITIAL_DATA = [
-  {title: 'Deep Thought #1', content: "If there's no 'there' there, where is it and what's there?"},
-];
-
-var TOTAL_POST_COUNT = 0;
-var CURRENT_INDEX = 0;
-
-var REQUEST_URL = 'http://ec2-52-32-2-14.us-west-2.compute.amazonaws.com/ContentPortal/?json=get_posts&count=50';
-
 var React = require('react-native');
 var {
   Dimensions,
@@ -27,7 +18,8 @@ var {
   ViewPagerAndroid,
   LayoutAnimation,
   TouchableWithoutFeedback,
-  Animated
+  Animated,
+  Alert
 } = React;
 
 //var Icon = require('react-native-vector-icons/FontAwesome');
@@ -39,6 +31,8 @@ var Parse = require('parse/react-native');
 var ParseReact = require('parse-react/react-native');
 var confModule = require('./Config');
 var StorageHelper = require('./utils/AsyncStorageWrapper');
+const {getFontSize} = require('./utils/utils');
+import {fonts, scalingFactors} from './utils/fonts';
 var Config = new confModule();
 
 Parse.initialize(
@@ -81,6 +75,15 @@ var MainScreen = React.createClass({
     // Check if this is fixed in later versions of react native vector icons
     var lineHeight26 = this.calculateLineHeight(26);
     var lineHeight24 = this.calculateLineHeight(24);
+    var scaled = StyleSheet.create({
+      normal: {
+        fontSize: WindowSize.width / scalingFactors.normal
+      },
+      heading: {
+        fontSize: WindowSize.width / scalingFactors.heading
+      }
+    });
+
     var bindingData = this.data.listings.length > 0 ? this.data.listings : this.state.posts;
     return(
     <View style={styles.container}>
@@ -101,10 +104,10 @@ var MainScreen = React.createClass({
                   <View key={story.objectId} style={{flex:1,width: WindowSize.width, height: WindowSize.height-40}}>
                     <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri:story.image_url}}/>
                     <View style={styles.textContainer}>
-                        <Text style={styles.title} numberOfLines={1}>
+                        <Text style={[styles.title, fonts.heading, scaled.heading]} numberOfLines={1}>
                           {story.title}
                         </Text>
-                      <Text style={styles.text}  numberOfLines={10}>
+                      <Text style={[styles.text, fonts.normal, scaled.normal]}  numberOfLines={10}>
                         {story.content}
                       </Text>
                     </View>
@@ -198,9 +201,10 @@ var styles = StyleSheet.create({
   text: {
     fontSize: 12,
     textAlign: 'left',
-    color: '#333333',
+    color: '#141414',
     marginBottom: 5,
     marginTop: 15,
+    fontFamily: 'roboto'
   },
   buttonContainer: {
     bottom: 0,
@@ -212,10 +216,6 @@ var styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  buttonText: {
-    fontSize: 30,
-    color: '#666666',
   },
   image: {
     margin:3,
