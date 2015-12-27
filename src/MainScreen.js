@@ -31,6 +31,8 @@ var Parse = require('parse/react-native');
 var ParseReact = require('parse-react/react-native');
 var confModule = require('./Config');
 var StorageHelper = require('./utils/AsyncStorageWrapper');
+var LoadingIndicator = require('./utils/loading');
+var ConnectinInfo = require('./utils/connectionInfo')
 const {getFontSize} = require('./utils/utils');
 import {fonts, scalingFactors} from './utils/fonts';
 var Config = new confModule();
@@ -40,16 +42,23 @@ Parse.initialize(
   Config.APPKEY
 );
 
+var initialPageNo = 0;
+
 var MainScreen = React.createClass({
   mixins: [ParseReact.Mixin],
   getInitialState: function() {
     StorageHelper.get("posts").then((value) =>{
           this.setState({"posts": value});
+          if(value.length > 0){
+            this.setState({"lastReadPostID": value[value.length-1].postId})
+          }
     });
     return {
-      post: true,
       menuHeight: 0.1,
       slideValue: new Animated.Value(0),
+      dataSource: null,
+      canLoadMoreContent: true,
+      isLoadingContent: false
     };
   },
   observe: function(props, state) {
@@ -63,18 +72,15 @@ var MainScreen = React.createClass({
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
   },
   componentDidUpdate(){
-     if(this.data.listings.length>0){
+    if(this.data.listings.length>0){
         StorageHelper.save("posts", this.data.listings);
-      }
+     }
   },
   render: function() {
     if ( !this.pendingQueries().length == 0 ) {
       return this.renderLoadingView();
     }
 
-    // Check if this is fixed in later versions of react native vector icons
-    var lineHeight26 = this.calculateLineHeight(26);
-    var lineHeight24 = this.calculateLineHeight(24);
     var scaled = StyleSheet.create({
       normal: {
         fontSize: WindowSize.width / scalingFactors.normal
@@ -85,14 +91,24 @@ var MainScreen = React.createClass({
     });
 
     var bindingData = this.data.listings.length > 0 ? this.data.listings : this.state.posts;
+
+// if(data.listings.length>0){
+//     for(var i=0; i< this.data.listings.length; i++){
+//       if(this.data.listings[i].postId == this.state.lastReadPostID){
+//         initialPageNo = this.data.listings - 1 - i;
+//         break;
+//       }
+//     }
+//   }
+
     return(
     <View style={styles.container}>
 
         <View style={styles.topMenuContainer} ref='_topMenu'>
-          <Icon name="menu" style={{marginLeft: 10,textAlign:'center', lineHeight:lineHeight26}}  onPress={()=>{this.toggleMenu()}} size={26}/>
+          <Icon name="menu" style={{marginLeft: 10,textAlign:'center',}}  onPress={()=>{this.toggleMenu()}} size={26}/>
           <View style={{justifyContent: 'space-between' ,flexDirection: 'row'}}>
-            <Icon name="skip-previous" style={{paddingRight: 20, lineHeight:lineHeight26}} onPress={()=>{this.scrollToFirst()}} size={26} />
-            <Icon name="more-vert" style={{paddingRight: 10, lineHeight:lineHeight26}} size={26}/>
+            <Icon name="skip-previous" style={{paddingRight: 20}} onPress={()=>{this.scrollToFirst()}} size={26} />
+            <Icon name="more-vert" style={{paddingRight: 10}} size={26}/>
           </View>
         </View>
 
@@ -115,7 +131,7 @@ var MainScreen = React.createClass({
                       <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
                         <Text>By: {story.authorName}</Text>
                         <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.content_host}</Text>
-                        <Icon name="share" style={{paddingRight: 10, marginTop:-10}} size={24}/>
+                        <Icon name="share" style={{paddingRight: 10}} size={24}/>
                       </View>
                     </View>
                   </View>
@@ -133,10 +149,13 @@ var MainScreen = React.createClass({
       );
   },
   componentDidMount: function() {
+    //this.refs.loadingControl.startLoading();
   },
   renderLoadingView: function() {
+    // <LoadingIndicator ref="loadingControl"/>
     return (
-      <View style={[styles.container, {alignItems: 'center'}]}>
+      <View style= {[styles.container, {alignItems: 'center'}]}>
+
         <Text>
           Thinking thoughts...
         </Text>
@@ -156,15 +175,6 @@ var MainScreen = React.createClass({
     }
     else{
       this.refs._scrollPager.setPage(0);
-    }
-  },
-  calculateLineHeight : function(size: number){
-    // Hack for react-native-vector-icons to align middle vertically. Use this to set the height & lineHeight property.
-    if(Platform.OS==='ios'){
-      return size;
-    }
-    else{
-      return size * 2;
     }
   },
   toggleMenu: function()
