@@ -8,7 +8,7 @@ var StorageHelper = {
 	get: function(key) {
 		return AsyncStorage.getItem(key).then(function(value) {
 		   if(value !== null && value.length >0){
-             return(JSON.parse(value));  
+             return(JSON.parse(value));
            }
 		});
 	},
@@ -19,7 +19,7 @@ var StorageHelper = {
 
 	delete: function(key) {
 		return AsyncStorage.removeItem(key);
-	}, 	
+	},
 
 	update: function(key, value) {
 		return StorageHelper.get(key).then((item) => {

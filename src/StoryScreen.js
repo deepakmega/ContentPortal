@@ -13,9 +13,9 @@ var {
   TouchableNativeFeedback
 } = React;
 
-var WebViewAndroid = require('react-native-webview-android');
-var MyWebView = (Platform.OS === 'ios') ? WebView : WebViewAndroid;//require('./WebView');
-
+//var WebViewAndroid = require('react-native-webview-android');
+//var MyWebView = (Platform.OS === 'ios') ? WebView : WebViewAndroid;//require('./WebView');
+var MyWebView = WebView;
 var PIXELRATIO = PixelRatio.get();
 var HEADER_SIZE = 200;
 

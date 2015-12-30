@@ -31,6 +31,7 @@ var Parse = require('parse/react-native');
 var ParseReact = require('parse-react/react-native');
 var confModule = require('./Config');
 var StorageHelper = require('./utils/AsyncStorageWrapper');
+var ParseAndroidModule = require('./utils/ParseAndroidModule')
 var LoadingIndicator = require('./utils/loading');
 var ConnectinInfo = require('./utils/connectionInfo')
 const {getFontSize} = require('./utils/utils');
@@ -53,10 +54,23 @@ var MainScreen = React.createClass({
             this.setState({"lastReadPostID": value[value.length-1].postId})
           }
     });
+
+    if(Platform.OS==='ios'){
+    }
+    else{
+        ParseAndroidModule.registerDevice(
+          (errMsg) => {
+            console.log(errMsg);
+          },
+          (deviceToken) => {
+            console.log(deviceToken);
+            StorageHelper.save("deviceToken", deviceToken);
+          });
+    }
+
     return {
       menuHeight: 0.1,
       slideValue: new Animated.Value(0),
-      dataSource: null,
       canLoadMoreContent: true,
       isLoadingContent: false
     };
@@ -91,6 +105,7 @@ var MainScreen = React.createClass({
     });
 
     var bindingData = this.data.listings.length > 0 ? this.data.listings : this.state.posts;
+    // TODO: add no posts card if both are emtpy.
 
 // if(data.listings.length>0){
 //     for(var i=0; i< this.data.listings.length; i++){
@@ -141,7 +156,7 @@ var MainScreen = React.createClass({
           </ScrollPager>
 
           <Animated.View style={[styles.toggleMenu, {height: this.state.menuHeight}]} >
-            <MenuScreen/>
+            <MenuScreen onDone={this.toggleMenu}/>
           </Animated.View>
         </View>
 
@@ -149,13 +164,12 @@ var MainScreen = React.createClass({
       );
   },
   componentDidMount: function() {
-    //this.refs.loadingControl.startLoading();
+    this.refs.loadingControl.startLoading();
   },
   renderLoadingView: function() {
-    // <LoadingIndicator ref="loadingControl"/>
     return (
       <View style= {[styles.container, {alignItems: 'center'}]}>
-
+        <LoadingIndicator ref="loadingControl"/>
         <Text>
           Thinking thoughts...
         </Text>
@@ -179,6 +193,7 @@ var MainScreen = React.createClass({
   },
   toggleMenu: function()
   {
+    console.log("calling Toggle");
     LayoutAnimation.configureNext(LayoutAnimation.Presets.linear);
     if(this.state.menuHeight === 0.1){
       this.setState({menuHeight: WindowSize.height});
