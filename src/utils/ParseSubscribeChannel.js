@@ -1,32 +1,31 @@
 'use strict';
 
 var React = require('react-native');
-var confModule = require('./../Config');
+var Config = require('./../Config');
 var StorageHelper = require('./AsyncStorageWrapper');
 var {
   Platform,
 } = React;
 
 var ParseSubscribeChannel = {
-  subscribe: function(subscribedCategories: Array){
+  subscribe: function(subscribedCategories: Array) {
 
-    switch(Platform.OS) {
+    switch (Platform.OS) {
       case 'ios':
         // TODO: IOS
         break;
-    case 'android':
+      case 'android':
         this.subscribeCategory(subscribedCategories, false);
         break;
-    default:
+      default:
         break;
     }
   },
-  subscribeCategory: function(subscribedCategories: Array, isIOS: boolean){
-    StorageHelper.get("deviceToken").then((value) =>{
-      if(isIOS){
+  subscribeCategory: function(subscribedCategories: Array, isIOS: boolean) {
+    StorageHelper.get("deviceToken").then((value) => {
+      if (isIOS) {
 
-      }
-      else{
+      } else {
         var data = {
           "deviceToken": value,
           "channels": subscribedCategories,
@@ -39,25 +38,27 @@ var ParseSubscribeChannel = {
   },
   registerInstallation: function(data) {
     console.log("registering");
-      var url = "https://api.parse.com";
-      url += "/1/installations";
+    var url = "https://api.parse.com";
+    url += "/1/installations";
 
-      var token='OdALkZZtfT6ke8zNPxko1i6drkpzXvstw8noNTpm';
-      var restkey='5gsip6PqUqICu2m1aak9e75heqISS4zYIV81EJcN';
-      var header = {
-        method:'POST',
-        headers:{
-          'Accept': 'application/json',
-          'X-Parse-Application-Id': token,
-          'X-Parse-REST-API-Key': restkey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)};
+    var header = {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'X-Parse-Application-Id': Config.prototype.TOKEN,
+        'X-Parse-REST-API-Key': Config.prototype.RESTKEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    };
 
-        console.log(header);
+    console.log(header);
 
-      fetch('https://api.parse.com/1/installations', header)
-      .then((response) => {console.log("response"+ response);response.text();})
+    fetch(url, header)
+      .then((response) => {
+        console.log("response" + response.status);
+        response.text();
+      })
       .then((responseText) => {
         console.log(responseText);
       })
@@ -65,8 +66,8 @@ var ParseSubscribeChannel = {
         console.warn(error);
       });
 
-          console.log("registered");
-      }
+    console.log("registered");
+  }
 };
 
 

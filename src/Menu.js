@@ -19,10 +19,11 @@ var {
 const {
   MKButton,
   MKColor,
-  MKSwitch
+  MKSwitch,
+  MKIconToggle
 } = MaterialKit;
 
-var SubscribedCategory = new Array();
+var SubscribedCategoriesArray = new Array();
 
 var Menu = React.createClass({
   propTypes: {
@@ -32,6 +33,9 @@ var Menu = React.createClass({
   getInitialState: function(){
     StorageHelper.get("categories").then((value) =>{
           this.setState({"categories": value});
+    });
+    StorageHelper.get("subscribedCategories").then((value) =>{
+          SubscribedCategoriesArray = value.slice();
     });
     return {
       isLoadingContent: false
@@ -48,11 +52,36 @@ var Menu = React.createClass({
      }
   },
   doneHandler: function(e) {
-    console.log("calling Toggle");
     if (typeof this.props.onDone === 'function') {
-        this.props.onDone();
+      // Closes the menu by parent method
+      this.props.onDone();
     }
   },
+
+  subscribe: function(){
+    // Close menu view
+    StorageHelper.save("subscribedCategories", SubscribedCategoriesArray);
+    this.doneHandler();
+    ParseSubscribeChannel.subscribe(SubscribedCategoriesArray);
+  },
+
+  toggleSubscription: function(subName: string, toggleState: Object){
+    if(toggleState.checked === true){
+      if(!(SubscribedCategoriesArray.indexOf(subName) > -1)){
+        SubscribedCategoriesArray.push(subName);
+      }
+    }
+    else {
+      if(SubscribedCategoriesArray.indexOf(subName) > -1){
+        SubscribedCategoriesArray.splice(SubscribedCategoriesArray.indexOf(subName),1);
+      }
+    }
+  },
+
+  checkIfSubscribed: function(subName: string){
+    return (SubscribedCategoriesArray.indexOf(subName) > -1);
+  },
+
   renderLoadingView: function() {
     // <LoadingIndicator ref="loadingControl"/>
     return (
@@ -63,21 +92,8 @@ var Menu = React.createClass({
       </View>
     );
   },
-
-  toggleSubscription: function(subName: string, toggleState: Object){
-    if(toggleState.checked === true){
-      if(!(SubscribedCategory.indexOf(subName) > -1)){
-        SubscribedCategory.push(subName);
-      }
-    }
-    else {
-      if(SubscribedCategory.indexOf(subName) > -1){
-        SubscribedCategory.splice(SubscribedCategory.indexOf('subName'),1);
-      }
-    }
-  },
-
   render: function() {
+    console.log("renderCalled");
     if ( !this.pendingQueries().length == 0 ) {
       return this.renderLoadingView();
     }
@@ -89,21 +105,21 @@ var Menu = React.createClass({
         <View style={{marginTop: 50, padding: 30, flexDirection: 'column'}}>
           <View style={{padding: 5, paddingTop: 15}}>
             <Text style={{color: '#FFF', fontSize:24}}>Categories</Text>
+
           </View>
           <View  style= {{borderTopWidth:1, borderColor: 'white', flexDirection: 'column'}}>
             {
               bindingData.map(function(category: Object){
+                console.log("mapped");
                 return(
                   <View key={category.CategoryId} style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
                     <Text style={{color: '#FFF', fontSize:18}}><Icon name="face" style={{paddingRight: 10}} size={18}/>{category.Name}</Text>
-                      <MKSwitch
-                        trackSize={30}
-                        trackLength={52}
-                        onColor="rgba(255,152,0,.3)"
-                        thumbOnColor={MKColor.Orange}
-                        rippleColor="rgba(255,152,0,.2)"
-                        onCheckedChange={(state) => {this.toggleSubscription(category.SubscriptionName, state)}}
-                          />
+                    <View style={{flex:1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight:15}}>
+                      <MKIconToggle checked={this.checkIfSubscribed(category.SubscriptionName)} style={{width:0, height:0, }} onCheckedChange={(state) => {this.toggleSubscription(category.SubscriptionName, state)}}>
+                        <Text style={{fontSize:18, color: '#FFF'}} pointerEvents="none">No</Text>
+                        <Text style={{fontSize:18, color: '#1caf9a'}}state_checked={true} pointerEvents="none">Yes</Text>
+                      </MKIconToggle>
+                    </View>
                     <Text style={{color: '#FFF', fontSize:18, textAlign: 'right', paddingLeft: 15}}>55</Text>
                   </View>
                 );
@@ -132,11 +148,6 @@ var Menu = React.createClass({
         </View>
       </View>
   		);
-  },
-  subscribe: function(){
-    console.log(SubscribedCategory);
-    this.doneHandler();
-    ParseSubscribeChannel.subscribe(SubscribedCategory);
   },
 });
 var styles = StyleSheet.create({
