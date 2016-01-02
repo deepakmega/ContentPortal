@@ -33,7 +33,9 @@ var confModule = require('./Config');
 var StorageHelper = require('./utils/AsyncStorageWrapper');
 var ParseAndroidModule = require('./utils/ParseAndroidModule')
 var LoadingIndicator = require('./utils/loading');
-var ConnectinInfo = require('./utils/connectionInfo')
+var ConnectinInfo = require('./utils/connectionInfo');
+var mod = require('./utils/ParseGCMModule');
+var ParseGCMModule = new mod();
 const {getFontSize} = require('./utils/utils');
 import {fonts, scalingFactors} from './utils/fonts';
 var Config = new confModule();
@@ -84,6 +86,13 @@ var MainScreen = React.createClass({
   componentWillMount(){
     // Animate creation
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+  },
+  componentDidMount: function() {
+    this.refs.loadingControl.startLoading();
+    ParseGCMModule.RTPushNotificationListener(this.onNotification);
+  },
+  onNotification: function(){
+    console.log("notifcatoin recieved");
   },
   componentDidUpdate(){
     if(this.data.listings.length>0){
@@ -162,9 +171,6 @@ var MainScreen = React.createClass({
 
       </View>
       );
-  },
-  componentDidMount: function() {
-    this.refs.loadingControl.startLoading();
   },
   renderLoadingView: function() {
     return (
