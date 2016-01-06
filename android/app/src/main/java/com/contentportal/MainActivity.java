@@ -18,8 +18,15 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
     private ReactInstanceManager mReactInstanceManager;
     private ReactRootView mReactRootView;
 
+    private static Activity mainParent;
+
+    public static Activity getMainParent(){
+        return mainParent;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mainParent = this;
         super.onCreate(savedInstanceState);
         mReactRootView = new ReactRootView(this);
 
@@ -38,6 +45,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
         mReactRootView.startReactApplication(mReactInstanceManager, "ContentPortal", null);
         ParseInstallation.getCurrentInstallation().saveInBackground();
         setContentView(mReactRootView);
+        this.processPushBundle();
     }
 
     @Override
@@ -70,6 +78,10 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
         if (mReactInstanceManager != null) {
             mReactInstanceManager.onPause();
         }
+
+        if (ParseGCMModule.isOnForeground() == true) {
+            ParseGCMModule.setIsOnForeground(false);
+        }
     }
 
     @Override
@@ -78,6 +90,22 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
 
         if (mReactInstanceManager != null) {
             mReactInstanceManager.onResume(this, this);
+        }
+
+        if (ParseGCMModule.isOnForeground() == false) {
+            ParseGCMModule.setIsOnForeground(true);
+        }
+    }
+
+    private void processPushBundle()
+    {
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null)	{
+            Bundle originalExtras = extras.getBundle("pushBundle");
+
+            originalExtras.putBoolean("foreground", false);
+            ParseGCMModule.sendExtras(originalExtras);
         }
     }
 }

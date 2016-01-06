@@ -74,7 +74,9 @@ var MainScreen = React.createClass({
       menuHeight: 0.1,
       slideValue: new Animated.Value(0),
       canLoadMoreContent: true,
-      isLoadingContent: false
+      isLoadingContent: false,
+      hasNotification: false,
+      notificationPostId: -1
     };
   },
   observe: function(props, state) {
@@ -91,12 +93,43 @@ var MainScreen = React.createClass({
     this.refs.loadingControl.startLoading();
     ParseGCMModule.RTPushNotificationListener(this.onNotification);
   },
-  onNotification: function(){
-    console.log("notifcatoin recieved");
+  onNotification: function(data){
+    var jsonData = JSON.stringify(data);
+    console.log("Received notification: " + jsonData);
+    var response = JSON.parse(jsonData).payload;
+    var message = response["message"];
+    var postId = response["postId"];
+
+    console.log("Message: " + message + " PostId: " + postId);
+    //TODO: ios
+    console.log(postId);
+    this.setState({hasNotification: true});
+    this.setState({notificationPostId: postId});
+  },
+  setInitPageNumber: function(postId){
+    if(this.data.listings.length>0){
+        for(var i=0; i< this.data.listings.length; i++){
+          if(this.data.listings[i].postId == postId){
+            initialPageNo = i;
+            return initialPageNo;
+          }
+        }
+      }
+
+      return -1;
   },
   componentDidUpdate(){
     if(this.data.listings.length>0){
         StorageHelper.save("posts", this.data.listings);
+        var notificationPostId = parseInt(this.state.notificationPostId);
+        if(this.state.hasNotification && notificationPostId > -1){
+          var postID = this.setInitPageNumber(notificationPostId);
+          //TODO: ios
+          console.log(postID);
+          if(postID > -1){
+            this.refs._scrollPager.setPage(postID);
+          }
+        }
      }
   },
   render: function() {
@@ -115,7 +148,8 @@ var MainScreen = React.createClass({
 
     var bindingData = this.data.listings.length > 0 ? this.data.listings : this.state.posts;
     // TODO: add no posts card if both are emtpy.
-
+    // TODO: set to last postID
+    
 // if(data.listings.length>0){
 //     for(var i=0; i< this.data.listings.length; i++){
 //       if(this.data.listings[i].postId == this.state.lastReadPostID){
@@ -137,7 +171,7 @@ var MainScreen = React.createClass({
         </View>
 
         <View style={{flex:1}}>
-          <ScrollPager ref='_scrollPager' style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
+          <ScrollPager ref='_scrollPager' initialPage={initialPageNo} style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
             {
               bindingData.map(function(story: Object){
                 return (

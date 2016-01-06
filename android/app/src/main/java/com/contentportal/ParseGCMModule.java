@@ -11,6 +11,7 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.parse.ParsePush;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,10 +25,19 @@ public class ParseGCMModule extends ReactContextBaseJavaModule {
     private static final String TAG = "" ;
     private static Bundle gCachedExtras;
     private static ParseGCMModule instance;
+    private static boolean isOnForeground;
 
     public static ParseGCMModule instance(){
         return instance;
     }
+    public static void setIsOnForeground(boolean isOnForeground){
+        ParseGCMModule.isOnForeground = isOnForeground;
+    }
+
+    public static boolean isOnForeground(){
+        return ParseGCMModule.isOnForeground;
+    }
+
 
     @ReactMethod
     public void checkForNotifications(){
@@ -45,45 +55,26 @@ public class ParseGCMModule extends ReactContextBaseJavaModule {
     public static void sendExtras(Bundle extras) {
         if (extras != null) {
             gCachedExtras = extras;
-            JSONObject json = new JSONObject();
-            try {
-                json.put("message", "test msg");
-            }
-            catch (JSONException e){
-                e.printStackTrace();
-            }
-            if (ParseGCMModule.instance != null) {
-                ParseGCMModule.instance.sendJavascript(json);
+
+            if (ParseGCMModule.instance != null && MainActivity.getMainParent() != null) {
+                ParseGCMModule.instance.sendJavascript(convertBundleToJson(gCachedExtras));
             }
         }
     }
 
     private static JSONObject convertBundleToJson(Bundle extras)
     {
-        JSONObject json = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
         try {
-//            if (extras.containsKey("P")){
-//                json = new JSONObject();
-//                json.put("payload", extras.getString("P"));
-//            }
-//            else{
-//                //String message = extras.getString("M");
-//                //String newMsg = message.substring(message.indexOf("_", message.indexOf("_") + 1) + 1);
-//                json.put("message", "test msg");
-//            }
-//
-//            if (extras.containsKey("C")){
-//                json.put("channel", extras.getString("C"));
-//            }
+            String message = null;
+            String jsonData = extras.getString("com.parse.Data");
+              jsonObject = new JSONObject(jsonData);
 
-            json.put("message", "test msg");
-
-            Log.v(TAG, "extrasToJSON: " + json.toString());
+            Log.v(TAG, "extrasToJSON: " + jsonObject.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return json;
-
+        return jsonObject;
     }
 
     public void sendJavascript(JSONObject json) {
@@ -94,8 +85,7 @@ public class ParseGCMModule extends ReactContextBaseJavaModule {
 
                 WritableMap params = new WritableNativeMap();
 
-                //JSONObject temp = new JSONObject(json.getString("payload"));
-                JSONObject temp = new JSONObject("{message: 'test'}");
+                JSONObject temp = json;
 
                 Iterator<String> iter = temp.keys();
                 while (iter.hasNext()) {
@@ -110,10 +100,10 @@ public class ParseGCMModule extends ReactContextBaseJavaModule {
                 toSend.putMap("payload", params);
                 sendEvent(getReactApplicationContext(), "onPushNotification", toSend);
                 gCachedExtras = null;
-            } catch (JSONException ex) {
+            } catch (Exception ex) {
                 WritableMap params = new WritableNativeMap();
                 params.putString("message", json.getString("message"));
-                params.putString("channel", json.getString("channel"));
+                //params.putString("channel", json.getString("channel"));
 
 //                if (queue != null){
 //                    for (int id : this.queue.keySet()){
@@ -128,8 +118,8 @@ public class ParseGCMModule extends ReactContextBaseJavaModule {
                     sendEvent(getReactApplicationContext(), "onPushNotification", params);
                     gCachedExtras = null;
                 }
-
             }
+
             Log.i(TAG, "sendJavascript: " + send);
 
         } catch (Exception e) {
