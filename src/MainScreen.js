@@ -35,6 +35,7 @@ var ParseAndroidModule = require('./utils/ParseAndroidModule')
 var LoadingIndicator = require('./utils/loading');
 var ConnectinInfo = require('./utils/connectionInfo');
 var mod = require('./utils/ParseGCMModule');
+var Share = require('react-native-share');
 var ParseGCMModule = new mod();
 const {getFontSize} = require('./utils/utils');
 import {fonts, scalingFactors} from './utils/fonts';
@@ -149,7 +150,7 @@ var MainScreen = React.createClass({
     var bindingData = this.data.listings.length > 0 ? this.data.listings : this.state.posts;
     // TODO: add no posts card if both are emtpy.
     // TODO: set to last postID
-    
+
 // if(data.listings.length>0){
 //     for(var i=0; i< this.data.listings.length; i++){
 //       if(this.data.listings[i].postId == this.state.lastReadPostID){
@@ -189,7 +190,7 @@ var MainScreen = React.createClass({
                       <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
                         <Text>By: {story.authorName}</Text>
                         <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.content_host}</Text>
-                        <Icon name="share" style={{paddingRight: 10}} size={24}/>
+                        <Icon name="share" style={{paddingRight: 10}} size={24} onPress={()=>{this.onShare(story)}}/>
                       </View>
                     </View>
                   </View>
@@ -215,6 +216,15 @@ var MainScreen = React.createClass({
         </Text>
       </View>
     );
+  },
+  onShare: function(story: Object) {
+    Share.open({
+      share_text: story.content,
+      share_URL: story.content_host,
+      title: story.title
+    },function(e) {
+      console.log(e);
+  });
   },
   selectStory: function(story: Object){
       this.props.navigator.push({

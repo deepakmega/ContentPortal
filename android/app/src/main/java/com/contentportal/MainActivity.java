@@ -13,6 +13,8 @@ import com.facebook.soloader.SoLoader;
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 import com.parse.ParseInstallation;
 
+import cl.json.RNSharePackage;
+
 public class MainActivity extends Activity implements DefaultHardwareBackBtnHandler {
 
     private ReactInstanceManager mReactInstanceManager;
@@ -38,6 +40,7 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
                 .addPackage(new ParseInstallationPackage())
                 .addPackage(new ParseGCMPackage())
                 .addPackage(new ReactMaterialKitPackage())
+                .addPackage(new RNSharePackage())
                 .setUseDeveloperSupport(BuildConfig.DEBUG)
                 .setInitialLifecycleState(LifecycleState.RESUMED)
                 .build();
