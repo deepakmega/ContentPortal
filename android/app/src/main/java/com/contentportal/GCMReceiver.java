@@ -43,41 +43,40 @@ public class GCMReceiver extends ParsePushBroadcastReceiver{
                 this.createNotification(context, extras);
                 //}
             }
-            ParseGCMModule.sendExtras(extras);
+            //ParseGCMModule.sendExtras(extras);
         }
     }
 
-//    @Override
-//    protected  void onPushOpen(Context context, Intent intent) {
-//        Bundle extras = intent.getExtras();
-//        if (extras != null) {
-//            // if we are in the foreground, just surface the payload, else open the app
-//            if (ParseGCMModule.isOnForeground()) {
-//                extras.putBoolean("foreground", true);
-//
-//
-//            } else {
-//                extras.putBoolean("foreground", false);
-//                ParseGCMModule.sendExtras(extras);
-//                super.onPushOpen(context, intent);
-//            }
-//        }
-//    }
+    @Override
+    protected  void onPushOpen(Context context, Intent intent) {
+        Bundle extras = intent.getExtras();
+        if (extras != null) {
+            // if we are in the foreground, just surface the payload, else open the app
+            if (ParseGCMModule.isOnForeground()) {
+                extras.putBoolean("foreground", true);
 
-    public void createNotification(Context context, Bundle extras)
-    {
+
+            } else {
+                extras.putBoolean("foreground", false);
+                ParseGCMModule.sendExtras(extras);
+                super.onPushOpen(context, intent);
+            }
+        }
+    }
+
+    public void createNotification(Context context, Bundle extras){
         NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         String appName = getAppName(context);
 
         String packageName = context.getPackageName();
-        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-        Class className = launchIntent.getComponent().getClass();
+        //Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        //Class className = launchIntent.getComponent().getClass();
 
-        Intent notificationIntent =  context.getPackageManager().getLaunchIntentForPackage(packageName);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        notificationIntent.putExtra("pushBundle", extras);
+        //Intent notificationIntent =  context.getPackageManager().getLaunchIntentForPackage(packageName);
+        //notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //notificationIntent.putExtra("pushBundle", extras);
 
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        //PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         int defaults = Notification.DEFAULT_ALL;
 
@@ -97,17 +96,18 @@ public class GCMReceiver extends ParsePushBroadcastReceiver{
             e.printStackTrace();
         }
 
-//        Random random = new Random();
-//        int contentIntentRequestCode = random.nextInt();
-//        int deleteIntentRequestCode = random.nextInt();
-//        Intent openIntent = new Intent("com.parse.push.intent.OPEN");
-//        openIntent.putExtras(extras);
-//        openIntent.setPackage(packageName);
-//        Intent deleteIntent = new Intent("com.parse.push.intent.DELETE");
-//        deleteIntent.putExtras(extras);
-//        deleteIntent.setPackage(packageName);
-//        PendingIntent pContentIntent = PendingIntent.getBroadcast(context, contentIntentRequestCode, openIntent, 134217728);
-//        PendingIntent pDeleteIntent = PendingIntent.getBroadcast(context, deleteIntentRequestCode, deleteIntent, 134217728);
+        Random random = new Random();
+        int contentIntentRequestCode = random.nextInt();
+        int deleteIntentRequestCode = random.nextInt();
+        Intent openIntent = new Intent("com.parse.push.intent.OPEN");
+        openIntent.putExtras(extras);
+        openIntent.setPackage(packageName);
+        openIntent.putExtra("pushBundle", extras);
+        Intent deleteIntent = new Intent("com.parse.push.intent.DELETE");
+        deleteIntent.putExtras(extras);
+        deleteIntent.setPackage(packageName);
+        PendingIntent pContentIntent = PendingIntent.getBroadcast(context, contentIntentRequestCode, openIntent, 134217728);
+        PendingIntent pDeleteIntent = PendingIntent.getBroadcast(context, deleteIntentRequestCode, deleteIntent, 134217728);
 
 //        com.parse.NotificationCompat.Builder parseBuilder = new com.parse.NotificationCompat.Builder(context);
 //
@@ -123,7 +123,7 @@ public class GCMReceiver extends ParsePushBroadcastReceiver{
                        .setSmallIcon(context.getApplicationInfo().icon)
                        .setWhen(System.currentTimeMillis())
                        .setContentTitle(context.getString(context.getApplicationInfo().labelRes))
-                       .setContentIntent(contentIntent)
+                       .setContentIntent(pContentIntent)
                        .setAutoCancel(true);
 
 
