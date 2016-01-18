@@ -113,14 +113,14 @@ var Menu = React.createClass({
                 console.log("mapped");
                 return(
                   <View key={category.CategoryId} style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{color: '#FFF', fontSize:18}}><Icon name="face" style={{paddingRight: 10}} size={18}/>{category.Name}</Text>
+                    <Text style={styles.subText}><Icon name="face" style={{paddingRight: 10}} size={18}/>{category.Name}</Text>
                     <View style={{flex:1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight:15}}>
                       <MKIconToggle checked={this.checkIfSubscribed(category.SubscriptionName)} style={{width:0, height:0, }} onCheckedChange={(state) => {this.toggleSubscription(category.SubscriptionName, state)}}>
-                        <Text style={{fontSize:18, color: '#FFF'}} pointerEvents="none">No</Text>
-                        <Text style={{fontSize:18, color: '#1caf9a'}}state_checked={true} pointerEvents="none">Yes</Text>
+                        <Text style={styles.subText, styles.toggleYes} pointerEvents="none">No</Text>
+                        <Text style={styles.subText, styles.toggleNo} state_checked={true} pointerEvents="none">Yes</Text>
                       </MKIconToggle>
                     </View>
-                    <Text style={{color: '#FFF', fontSize:18, textAlign: 'right', paddingLeft: 15}}>55</Text>
+                    <Text style={styles.subText, {textAlign: 'right', paddingLeft: 15}}>55</Text>
                   </View>
                 );
               }, this)
@@ -140,7 +140,7 @@ var Menu = React.createClass({
               }}
               >
               <Text pointerEvents="none"
-                    style={{color: 'white',textAlign: 'center', fontWeight: 'bold', fontSize:22, padding:5}}>
+                    style={styles.button}>
                 Done
               </Text>
             </MKButton>
@@ -163,6 +163,23 @@ var styles = StyleSheet.create({
    marginTop: 2,
    // marginBottom: 5,
  },
+ subText: {
+  fontSize: 18,
+  color: '#FFF'
+ },
+ toggleYes: {
+  color: '#FFF'
+ },
+ toggleNo: {
+  color: '#1caf9a'
+ },
+ button: {
+  color: 'white',
+  textAlign: 'center',
+  fontWeight: 'bold',
+  fontSize:22,
+  padding:5
+ }
 });
 
 module.exports = Menu;
