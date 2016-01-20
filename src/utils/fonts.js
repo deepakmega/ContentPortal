@@ -6,13 +6,13 @@ from 'react-native';
 var fonts = StyleSheet.create({
   normal: {
     fontSize: 12,
-    fontFamily: 'Roboto',
+
     fontStyle: 'normal',
     fontWeight: '300'
   },
   heading: {
     fontSize: 18,
-    fontFamily: 'Roboto',
+
     color: '#141414',
     fontStyle: 'normal',
     fontWeight: '700'
@@ -20,7 +20,7 @@ var fonts = StyleSheet.create({
   big: {
     fontSize: 24,
     alignSelf: 'center',
-    fontFamily: 'Roboto'
+
   }
 });
 var scalingFactors = {

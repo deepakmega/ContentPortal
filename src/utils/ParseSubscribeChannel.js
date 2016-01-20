@@ -12,7 +12,7 @@ var ParseSubscribeChannel = {
 
     switch (Platform.OS) {
       case 'ios':
-        // TODO: IOS
+        this.subscribeCategory(subscribedCategories, true);
         break;
       case 'android':
         this.subscribeCategory(subscribedCategories, false);
@@ -24,6 +24,12 @@ var ParseSubscribeChannel = {
   subscribeCategory: function(subscribedCategories: Array, isIOS: boolean) {
     StorageHelper.get("deviceToken").then((value) => {
       if (isIOS) {
+        var data = {
+          "deviceToken": value,
+          "channels": subscribedCategories,
+          "deviceType": "ios",
+        };
+        this.registerInstallation(data);
 
       } else {
         var data = {

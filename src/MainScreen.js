@@ -18,6 +18,8 @@ var {
   ViewPagerAndroid,
   LayoutAnimation,
   TouchableWithoutFeedback,
+  PushNotificationIOS,
+  AppStateIOS, 
   Animated,
   Alert
 } = React;
@@ -35,7 +37,7 @@ var ParseAndroidModule = require('./utils/ParseAndroidModule')
 var LoadingIndicator = require('./utils/loading');
 var ConnectinInfo = require('./utils/connectionInfo');
 var mod = require('./utils/ParseGCMModule');
-var Share = require('react-native-share');
+var Share = (Platform.OS === 'ios') ? require('react-native-activity-view') : require('react-native-share');
 var ParseGCMModule = new mod();
 const {getFontSize} = require('./utils/utils');
 import {fonts, scalingFactors} from './utils/fonts';
@@ -59,6 +61,7 @@ var MainScreen = React.createClass({
     });
 
     if(Platform.OS==='ios'){
+      //this.setState({"currentAppState": AppStateIOS.currentState});
     }
     else{
         ParseAndroidModule.registerDevice(
@@ -77,7 +80,8 @@ var MainScreen = React.createClass({
       canLoadMoreContent: true,
       isLoadingContent: false,
       hasNotification: false,
-      notificationPostId: -1
+      notificationPostId: -1,
+      currentAppState: AppStateIOS.currentState
     };
   },
   observe: function(props, state) {
@@ -87,12 +91,78 @@ var MainScreen = React.createClass({
     return { listings: listingQuery };
   },
   componentWillMount(){
+    console.log("componentWillMount called");
     // Animate creation
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+
+    if(Platform.OS==='ios'){
+      
+   PushNotificationIOS.requestPermissions();
+    var registerInstallation = function(data) {
+      var url = "https://api.parse.com";
+      url += "/1/installations";
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'X-Parse-Application-Id': Config.TOKEN,
+          'X-Parse-REST-API-Key': Config.RESTKEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      }).then((response) => {
+        console.log("response" + response.status);
+        response.text();
+      })
+      .then((responseText) => {
+        console.log(responseText);
+      })
+      .catch((error) => {
+        console.warn(error);
+      });
+
+      console.log("register completed");
+    };
+    var that = this;
+    PushNotificationIOS.addEventListener('register', function(token){
+      console.log("register called");
+      StorageHelper.save("deviceToken", token);
+      registerInstallation({
+        "deviceType": "ios",
+        "deviceToken": token,
+        "channels": ["global"],
+      })
+    });
+    PushNotificationIOS.addEventListener('notification', function(notification){
+      if(this.state.currentAppState == "active"){
+      console.log("notification Recieved");
+      console.log(notification);
+      console.log(notification._data.postId);
+      console.log(notification._data.message);
+    }
+    else{
+      this.setState({hasNotification: true});
+      this.setState({notificationPostId: notification._data.postId})
+    }
+    });
+  }
   },
+  componentWillUnmount: function() {
+    if(Platform.OS==='ios'){
+  AppStateIOS.removeEventListener('change', this._handleAppStateChange);
+}
+},
+_handleAppStateChange: function(currentAppState) {
+  this.setState({ currentAppState, });
+},
   componentDidMount: function() {
     this.refs.loadingControl.startLoading();
-    ParseGCMModule.RTPushNotificationListener(this.onNotification);
+    if(Platform.OS==='ios'){
+      AppStateIOS.addEventListener('change', this._handleAppStateChange);
+    }
+    else{
+      ParseGCMModule.RTPushNotificationListener(this.onNotification);
+    }
   },
   onNotification: function(data){
     var jsonData = JSON.stringify(data);
@@ -107,7 +177,7 @@ var MainScreen = React.createClass({
     this.setState({hasNotification: true});
     this.setState({notificationPostId: postId});
   },
-  setInitPageNumber: function(postId){
+  getInitPageNumber: function(postId){
     if(this.data.listings.length>0){
         for(var i=0; i< this.data.listings.length; i++){
           if(this.data.listings[i].postId == postId){
@@ -119,19 +189,33 @@ var MainScreen = React.createClass({
 
       return -1;
   },
+  scrollToPage: function(page){
+    var x = WindowSize.width * page;
+    var y = 0;
+    this.refs._scrollPager.scrollTo(x, y, false);
+  },
   componentDidUpdate(){
     if(this.data.listings.length>0){
         StorageHelper.save("posts", this.data.listings);
         var notificationPostId = parseInt(this.state.notificationPostId);
+        var pageNo = this.getInitPageNumber(notificationPostId);
         if(this.state.hasNotification && notificationPostId > -1){
-          var postID = this.setInitPageNumber(notificationPostId);
-          //TODO: ios
-          console.log(postID);
-          if(postID > -1){
-            this.refs._scrollPager.setPage(postID);
+          if(Platform.OS==='ios'){
+            console.log("ScrollToPage start");
+            console.log(pageNo);
+            scrollToPage(pageNo);
+            console.log("ScrollToPage End");
+
+          }else{
+          
+          console.log(pageNo);
+          if(pageNo > -1){
+            this.refs._scrollPager.setPage(pageNo);
           }
+          this.setState({hasNotification: false});
         }
-     }
+      }
+    }
   },
   render: function() {
     if ( !this.pendingQueries().length == 0 ) {
@@ -218,13 +302,22 @@ var MainScreen = React.createClass({
     );
   },
   onShare: function(story: Object) {
-    Share.open({
-      share_text: story.content,
-      share_URL: story.content_host,
-      title: story.title
-    },function(e) {
-      console.log(e);
-  });
+    if(Platform.OS==='ios'){
+      Share.show({
+      text: story.title,
+      url: story.content_host,
+      imageUrl: story.image_url,
+    });
+    }
+    else{
+      Share.open({
+          share_text: story.content,
+          share_URL: story.content_host,
+          title: story.title
+        },function(e) {
+          console.log(e);
+      });
+    }
   },
   selectStory: function(story: Object){
       this.props.navigator.push({
@@ -279,7 +372,6 @@ var styles = StyleSheet.create({
     color: '#141414',
     marginBottom: 5,
     marginTop: 15,
-    fontFamily: 'roboto'
   },
   buttonContainer: {
     bottom: 0,
