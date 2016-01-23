@@ -19,8 +19,10 @@ var {
   LayoutAnimation,
   TouchableWithoutFeedback,
   PushNotificationIOS,
-  AppStateIOS, 
+  AppStateIOS,
   Animated,
+  IntentAndroid,
+  LinkingIOS,
   Alert
 } = React;
 
@@ -33,11 +35,12 @@ var Parse = require('parse/react-native');
 var ParseReact = require('parse-react/react-native');
 var confModule = require('./Config');
 var StorageHelper = require('./utils/AsyncStorageWrapper');
-var ParseAndroidModule = require('./utils/ParseAndroidModule')
+var ParseAndroidModule = require('./utils/ParseAndroidModule');
 var LoadingIndicator = require('./utils/loading');
 var ConnectinInfo = require('./utils/connectionInfo');
 var mod = require('./utils/ParseGCMModule');
 var Share = (Platform.OS === 'ios') ? require('react-native-activity-view') : require('react-native-share');
+var LinkIntent = (Platform.OS === 'ios') ? LinkingIOS : IntentAndroid;
 var ParseGCMModule = new mod();
 const {getFontSize} = require('./utils/utils');
 import {fonts, scalingFactors} from './utils/fonts';
@@ -96,7 +99,7 @@ var MainScreen = React.createClass({
     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
 
     if(Platform.OS==='ios'){
-      
+
    PushNotificationIOS.requestPermissions();
     var registerInstallation = function(data) {
       var url = "https://api.parse.com";
@@ -207,7 +210,7 @@ _handleAppStateChange: function(currentAppState) {
             console.log("ScrollToPage End");
 
           }else{
-          
+
           console.log(pageNo);
           if(pageNo > -1){
             this.refs._scrollPager.setPage(pageNo);
@@ -320,11 +323,15 @@ _handleAppStateChange: function(currentAppState) {
     }
   },
   selectStory: function(story: Object){
+    if(story.content_type === 1){
+      LinkIntent.canOpenURL(story.content_url, (supported) => { if (!supported) { console.log('Can\'t handle url: ' + story.content_url); } else { LinkIntent.openURL(story.content_url); } });
+    }else{
       this.props.navigator.push({
         title: story.title,
         name: 'story',
         story: story,
       });
+    }
   },
   scrollToFirst : function(){
     if(Platform.OS==='ios'){

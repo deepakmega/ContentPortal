@@ -13,6 +13,8 @@ var {
   TouchableNativeFeedback
 } = React;
 
+var VideoPlayer = require('./utils/VideoPlayer')
+
 //var WebViewAndroid = require('react-native-webview-android');
 //var MyWebView = (Platform.OS === 'ios') ? WebView : WebViewAndroid;//require('./WebView');
 var MyWebView = WebView;
@@ -43,11 +45,26 @@ var StoryScreen = React.createClass({
       this.props.navigator.pop();
     }
   },
-  render: function() {
+  renderWebViewControl() {
     var TouchableElement = TouchableHighlight;
-    if (Platform.OS === 'android') {
-      TouchableElement = TouchableNativeFeedback;
-    }
+    // if (Platform.OS === "android" && Platform.Version >= 23) {
+    //         return (
+    //             <TouchableNativeFeedback {...this.props} background={TouchableNativeFeedback.Ripple(this.props.pressColor)}>
+    //                 {this.props.children}
+    //             </TouchableNativeFeedback>
+    //         );
+    //     } else {
+    //         return (
+    //             <TouchableHighlight {...this.props} underlayColor={this.props.pressColor}>
+    //                 {this.props.children}
+    //             </TouchableHighlight>
+    //         );
+    //     }
+    //
+    //
+    // if (Platform.OS === 'android') {
+    //   TouchableElement = TouchableNativeFeedback;
+    // }
 
     var translateY = this.state.scrollValue.interpolate({
       inputRange: [0, HEADER_SIZE, HEADER_SIZE + 1], outputRange: [0, HEADER_SIZE, HEADER_SIZE]
@@ -61,16 +78,44 @@ var StoryScreen = React.createClass({
           style={styles.content}
           url={reqUrl}
           onScrollChange={this.onWebViewScroll}/>
-          <View style={styles.toolbar}>
-            <TouchableElement onPress={this._onPressBackButton}>
-              <View style={styles.actionsContainer}>
-                  <View style={styles.actionItem}>
-                    <Text style={styles.title}>Back</Text>
-                  </View>
-              </View>
-            </TouchableElement>
-          </View>
+        <View style={styles.toolbar}>
+          <TouchableElement onPress={this._onPressBackButton}>
+            <View style={styles.actionsContainer}>
+                <View style={styles.actionItem}>
+                  <Text style={styles.title}>Back</Text>
+                </View>
+            </View>
+          </TouchableElement>
+        </View>
       </View>
+    );
+  },
+  renderVideoControl() {
+    var TouchableElement = TouchableHighlight;
+    if (Platform.OS === 'android') {
+      TouchableElement = TouchableNativeFeedback;
+    }
+    return (
+      <View style={styles.container}>
+        <VideoPlayer/>
+        <View style={styles.toolbar}>
+          <TouchableElement onPress={this._onPressBackButton}>
+            <View style={styles.actionsContainer}>
+                <View style={styles.actionItem}>
+                  <Text style={styles.title}>Back</Text>
+                </View>
+            </View>
+          </TouchableElement>
+        </View>
+      </View>
+    );
+  },
+
+  render: function() {
+    return (
+      <View style={styles.container}>
+      {this.renderWebViewControl()}
+    </View>
     );
   }
 });

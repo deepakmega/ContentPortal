@@ -8,6 +8,7 @@ import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
+import com.brentvatne.react.ReactVideoPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +54,8 @@ public class MainActivity extends ReactActivity {
               new ParseInstallationPackage(),
               new ParseGCMPackage(),
               new ReactMaterialKitPackage(),
-              new RNSharePackage());
+              new RNSharePackage(),
+              new ReactVideoPackage());
     }
 
     @Override
