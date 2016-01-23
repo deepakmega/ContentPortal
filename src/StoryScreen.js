@@ -13,7 +13,16 @@ var {
   TouchableNativeFeedback
 } = React;
 
-var VideoPlayer = require('./utils/VideoPlayer')
+var VideoPlayer = require('./utils/VideoPlayer');
+var MaterialKit = require('react-native-material-kit');
+const {
+  MKButton,
+  MKColor,
+  mdl
+} = MaterialKit;
+
+const SingleColorSpinner = mdl.Spinner.singleColorSpinner()
+  .build();
 
 //var WebViewAndroid = require('react-native-webview-android');
 //var MyWebView = (Platform.OS === 'ios') ? WebView : WebViewAndroid;//require('./WebView');
@@ -45,6 +54,14 @@ var StoryScreen = React.createClass({
       this.props.navigator.pop();
     }
   },
+  renderLoadingView: function() {
+    return (
+      <View style= {[styles.loadingcontainer, {alignSelf: 'center',alignItems: 'center'}]}>
+        <SingleColorSpinner/>
+      </View>
+    );
+  },
+
   renderWebViewControl() {
     var TouchableElement = TouchableHighlight;
     // if (Platform.OS === "android" && Platform.Version >= 23) {
@@ -77,19 +94,39 @@ var StoryScreen = React.createClass({
           startInLoadingState={true}
           style={styles.content}
           url={reqUrl}
-          onScrollChange={this.onWebViewScroll}/>
+          onScrollChange={this.onWebViewScroll}
+          renderLoading={this.renderLoadingView}
+          />
         <View style={styles.toolbar}>
-          <TouchableElement onPress={this._onPressBackButton}>
-            <View style={styles.actionsContainer}>
-                <View style={styles.actionItem}>
-                  <Text style={styles.title}>Back</Text>
-                </View>
-            </View>
-          </TouchableElement>
+          <View style={{padding:7, width: 80}}>
+            <MKButton
+              backgroundColor={MKColor.Teal}
+              shadowRadius={2}
+              shadowOffset={{width:0, height:2}}
+              shadowOpacity={.7}
+              shadowColor="black"
+              onPress={this._onPressBackButton}
+              style={{height:40}}
+              >
+              <View style={{padding:7}}>
+              <Text pointerEvents="none"
+                    style={{color: 'white', fontWeight: 'bold', textAlign: 'center'}}>
+                Back
+              </Text>
+              </View>
+            </MKButton>
+          </View>
         </View>
       </View>
     );
   },
+  // <TouchableElement onPress={this._onPressBackButton}>
+  //   <View style={styles.actionsContainer}>
+  //       <View style={styles.actionItem}>
+  //         <Text style={styles.title}>Back</Text>
+  //       </View>
+  //   </View>
+  // </TouchableElement>
   renderVideoControl() {
     var TouchableElement = TouchableHighlight;
     if (Platform.OS === 'android') {
@@ -158,6 +195,12 @@ var styles = StyleSheet.create({
     paddingTop: 10,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  loadingcontainer: {
+    flex: 1,
+    justifyContent: 'center',
+    borderRadius: 8,
+    borderColor: '#000000'
   },
 });
 
