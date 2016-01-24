@@ -152,12 +152,12 @@ var MainScreen = React.createClass({
   },
   componentWillUnmount: function() {
     if(Platform.OS==='ios'){
-  AppStateIOS.removeEventListener('change', this._handleAppStateChange);
-}
-},
-_handleAppStateChange: function(currentAppState) {
-  this.setState({ currentAppState, });
-},
+      AppStateIOS.removeEventListener('change', this._handleAppStateChange);
+    }
+  },
+  _handleAppStateChange: function(currentAppState) {
+    this.setState({ currentAppState, });
+  },
   componentDidMount: function() {
     this.refs.loadingControl.startLoading();
     if(Platform.OS==='ios'){
@@ -201,6 +201,9 @@ _handleAppStateChange: function(currentAppState) {
     if(this.data.listings.length>0){
         StorageHelper.save("posts", this.data.listings);
         var notificationPostId = parseInt(this.state.notificationPostId);
+        console.log("NotifictionPostID");
+        console.log(this.state.notificationPostId);
+        console.log(notificationPostId);
         var pageNo = this.getInitPageNumber(notificationPostId);
         if(this.state.hasNotification && notificationPostId > -1){
           if(Platform.OS==='ios'){
@@ -210,7 +213,7 @@ _handleAppStateChange: function(currentAppState) {
             console.log("ScrollToPage End");
 
           }else{
-
+            console.log("Scrolling to:");
           console.log(pageNo);
           if(pageNo > -1){
             this.refs._scrollPager.setPage(pageNo);

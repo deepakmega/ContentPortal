@@ -24,6 +24,11 @@ public class MainActivity extends ReactActivity {
         return mainParent;
     }
 
+    @Override
+    protected  void onCreate(Bundle savedInstanceState) {
+        mainParent = this;
+        super.onCreate(savedInstanceState);
+    }
 
     /**
      * Returns the name of the main component registered from JavaScript.
