@@ -45,7 +45,7 @@ var ParseGCMModule = new mod();
 const {getFontSize} = require('./utils/utils');
 import {fonts, scalingFactors} from './utils/fonts';
 var Config = new confModule();
-
+Parse.serverURL = Config.PARSEURL;
 Parse.initialize(
   Config.TOKEN,
   Config.APPKEY
@@ -73,6 +73,17 @@ var MainScreen = React.createClass({
           },
           (deviceToken) => {
             console.log(deviceToken);
+            Parse.Cloud.run('createGCMPlatformEndpoint', { "deviceToken": deviceToken })
+              .then(function(response) {
+                if(response["code"] == 141) {
+                    console.log(response);
+                }
+                else {
+                  console.log(response["result"]);
+                  StorageHelper.save("deviceEndpointARN", response["result"]);
+                }
+            });
+            
             StorageHelper.save("deviceToken", deviceToken);
           });
     }

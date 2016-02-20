@@ -119,12 +119,12 @@ public class GCMReceiver extends ParsePushBroadcastReceiver{
 
         NotificationCompat.Builder mBuilder =
                 (NotificationCompat.Builder) new NotificationCompat.Builder(context)
-                       .setDefaults(defaults)
-                       .setSmallIcon(context.getApplicationInfo().icon)
-                       .setWhen(System.currentTimeMillis())
-                       .setContentTitle(context.getString(context.getApplicationInfo().labelRes))
-                       .setContentIntent(pContentIntent)
-                       .setAutoCancel(true);
+                        .setDefaults(defaults)
+                        .setSmallIcon(context.getApplicationInfo().icon)
+                        .setWhen(System.currentTimeMillis())
+                        .setContentTitle(context.getString(context.getApplicationInfo().labelRes))
+                        .setContentIntent(pContentIntent)
+                        .setAutoCancel(true);
 
 
         if (message != null) {

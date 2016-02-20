@@ -13,7 +13,6 @@ var {
   TouchableNativeFeedback
 } = React;
 
-var VideoPlayer = require('./utils/VideoPlayer');
 var MaterialKit = require('react-native-material-kit');
 const {
   MKButton,
@@ -134,7 +133,6 @@ var StoryScreen = React.createClass({
     }
     return (
       <View style={styles.container}>
-        <VideoPlayer/>
         <View style={styles.toolbar}>
           <TouchableElement onPress={this._onPressBackButton}>
             <View style={styles.actionsContainer}>

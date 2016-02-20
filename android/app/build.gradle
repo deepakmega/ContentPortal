@@ -73,13 +73,14 @@ android {
 
     defaultConfig {
         applicationId "com.contentportal"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
         ndk {
             abiFilters "armeabi-v7a", "x86"
         }
+        multiDexEnabled true
     }
     splits {
         abi {
@@ -114,7 +115,11 @@ dependencies {
     compile fileTree(dir: "libs", include: ["*.jar"])
     compile "com.android.support:appcompat-v7:23.0.1"
     compile "com.facebook.react:react-native:0.18.+"
-	  compile project(':RNMaterialKit')
+    compile 'com.parse.bolts:bolts-android:1.+'
+    compile 'com.parse:parse-android:1.+'
+    compile 'com.google.android.gms:play-services-gcm:8.1.0'
+    compile 'com.amazonaws:aws-android-sdk-core:2.+'
+    compile 'com.amazonaws:aws-android-sdk-sns:2.+'
+	compile project(':RNMaterialKit')
     compile project(':react-native-share')
-    compile project(':RCTVideo')
 }

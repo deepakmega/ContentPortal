@@ -21,6 +21,8 @@
       android:icon="@mipmap/ic_launcher"
       android:theme="@style/AppTheme"
       android:name="com.contentportal.MainApplication">
+        <meta-data android:name="com.parse.push.gcm_sender_id"
+            android:value="id:374648187866" />;
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -32,30 +34,25 @@
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
 
-        <service android:name="com.parse.PushService" />
-
-        <receiver android:name="com.contentportal.GCMReceiver"
-            android:exported="false">
+        <service
+            android:name="com.contentportal.MessageReceivingService"
+            android:label="com.contentportal.MessageReceivingService" >
             <intent-filter>
-                <action android:name="com.parse.push.intent.RECEIVE" />
-                <action android:name="com.parse.push.intent.DELETE" />
-                <action android:name="com.parse.push.intent.OPEN" />
+                <action android:name="com.contentportal.ExternalReceiver" />
             </intent-filter>
-        </receiver>
+        </service>
 
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver
+            android:name="com.contentportal.ExternalReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <action android:name="com.google.android.c2dm.intent.REGISTER" />
 
-                <!--
-                  IMPORTANT: Change "com.parse.starter" to match your app's package name.
-                -->
-                <category android:name="com.contentportal" />
+                <category android:name="com.amazonaws.androidtest" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

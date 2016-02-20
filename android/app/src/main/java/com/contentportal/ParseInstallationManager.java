@@ -16,6 +16,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParsePushBroadcastReceiver;
@@ -40,11 +41,21 @@ public class ParseInstallationManager  extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void registerDevice(final Callback errorCallback, final Callback successCallback){
-        ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+
+//        ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+//            @Override
+//            public void done(ParseException e) {
+//                String deviceToken = (String) ParseInstallation.getCurrentInstallation().get("deviceToken");
+//                successCallback.invoke(deviceToken);
+//            }
+//        });
+
+        GCMClientManager manager = new GCMClientManager(MainActivity.getMainParent(),MainActivity.getMainParent().getString(R.string.project_number));
+        manager.registerIfNeeded(new GCMClientManager.RegistrationCompletedHandler() {
             @Override
-            public void done(ParseException e) {
-                String deviceToken = (String) ParseInstallation.getCurrentInstallation().get("deviceToken");
-                successCallback.invoke(deviceToken);
+            public void onSuccess(String registrationId, boolean isNewRegistration) {
+                //String deviceToken = (String) ParseInstallation.getCurrentInstallation().get("deviceToken");
+                successCallback.invoke(registrationId);
             }
         });
     }

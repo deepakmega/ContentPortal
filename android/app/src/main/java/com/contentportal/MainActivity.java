@@ -1,14 +1,17 @@
 package com.contentportal;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
-import com.brentvatne.react.ReactVideoPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,6 +31,7 @@ public class MainActivity extends ReactActivity {
     protected  void onCreate(Bundle savedInstanceState) {
         mainParent = this;
         super.onCreate(savedInstanceState);
+        this.processPushBundle();
     }
 
     /**
@@ -59,8 +63,7 @@ public class MainActivity extends ReactActivity {
               new ParseInstallationPackage(),
               new ParseGCMPackage(),
               new ReactMaterialKitPackage(),
-              new RNSharePackage(),
-              new ReactVideoPackage());
+              new RNSharePackage());
     }
 
     @Override

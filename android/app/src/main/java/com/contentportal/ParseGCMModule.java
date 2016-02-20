@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * Created by Deepak on 1/2/2016.
@@ -65,15 +66,17 @@ public class ParseGCMModule extends ReactContextBaseJavaModule {
     private static JSONObject convertBundleToJson(Bundle extras)
     {
         JSONObject jsonObject = new JSONObject();
-        try {
-            String message = null;
-            String jsonData = extras.getString("com.parse.Data");
-              jsonObject = new JSONObject(jsonData);
-
-            Log.v(TAG, "extrasToJSON: " + jsonObject.toString());
-        } catch (JSONException e) {
-            e.printStackTrace();
+        Set<String> keys = extras.keySet();
+        for (String key : keys) {
+            try {
+                // json.put(key, bundle.get(key)); see edit below
+                jsonObject.put(key, JSONObject.wrap(extras.get(key)));
+            } catch(JSONException e) {
+                //Handle exception here
+                e.printStackTrace();
+            }
         }
+        Log.v(TAG, "extrasToJSON: " + jsonObject.toString());
         return jsonObject;
     }
 
