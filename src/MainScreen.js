@@ -79,11 +79,11 @@ var MainScreen = React.createClass({
                     console.log(response);
                 }
                 else {
-                  console.log(response["result"]);
-                  StorageHelper.save("deviceEndpointARN", response["result"]);
+                  console.log("Registered in SNS: " + response);
+                  StorageHelper.save("deviceEndpointARN", response);
                 }
             });
-            
+
             StorageHelper.save("deviceToken", deviceToken);
           });
     }

@@ -65,21 +65,21 @@ var Menu = React.createClass({
     ParseSubscribeChannel.subscribe(SubscribedCategoriesArray);
   },
 
-  toggleSubscription: function(subName: string, toggleState: Object){
+  toggleSubscription: function(categoryId, toggleState: Object){
     if(toggleState.checked === true){
-      if(!(SubscribedCategoriesArray.indexOf(subName) > -1)){
-        SubscribedCategoriesArray.push(subName);
+      if(!(SubscribedCategoriesArray.indexOf(categoryId) > -1)){
+        SubscribedCategoriesArray.push(categoryId);
       }
     }
     else {
-      if(SubscribedCategoriesArray.indexOf(subName) > -1){
-        SubscribedCategoriesArray.splice(SubscribedCategoriesArray.indexOf(subName),1);
+      if(SubscribedCategoriesArray.indexOf(categoryId) > -1){
+        SubscribedCategoriesArray.splice(SubscribedCategoriesArray.indexOf(categoryId),1);
       }
     }
   },
 
-  checkIfSubscribed: function(subName: string){
-    return (SubscribedCategoriesArray.indexOf(subName) > -1);
+  checkIfSubscribed: function(categoryId){
+    return (SubscribedCategoriesArray.indexOf(categoryId) > -1);
   },
 
   renderLoadingView: function() {
@@ -115,7 +115,7 @@ var Menu = React.createClass({
                   <View key={category.CategoryId} style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
                     <Text style={styles.subText}><Icon name="face" style={{paddingRight: 10}} size={18}/>{category.Name}</Text>
                     <View style={{flex:1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight:15}}>
-                      <MKIconToggle checked={this.checkIfSubscribed(category.SubscriptionName)} style={{width:0, height:0, }} onCheckedChange={(state) => {this.toggleSubscription(category.SubscriptionName, state)}}>
+                      <MKIconToggle checked={this.checkIfSubscribed(category.CategoryId)} style={{width:0, height:0, }} onCheckedChange={(state) => {this.toggleSubscription(category.CategoryId, state)}}>
                         <Text style={styles.subText, styles.toggleYes} pointerEvents="none">No</Text>
                         <Text style={styles.subText, styles.toggleNo} state_checked={true} pointerEvents="none">Yes</Text>
                       </MKIconToggle>
