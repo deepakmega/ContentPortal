@@ -105,22 +105,13 @@ public class ParseGCMModule extends ReactContextBaseJavaModule {
                 gCachedExtras = null;
             } catch (Exception ex) {
                 WritableMap params = new WritableNativeMap();
-                params.putString("message", json.getString("message"));
-                //params.putString("channel", json.getString("channel"));
-
-//                if (queue != null){
-//                    for (int id : this.queue.keySet()){
-//                        OrtcClient cl = queue.get(id);
-//                        if (cl != null && (cl.getIsConnected() && cl.isSubscribed(channel)))
-//                        {
-//                            gCachedExtras = null;
-//                        }
-//                    }
-//                }
+                params.putString("message", "New article arrived.");
                 if (gCachedExtras != null){
                     sendEvent(getReactApplicationContext(), "onPushNotification", params);
                     gCachedExtras = null;
                 }
+                Log.i(TAG, "sendJavascript error: ");
+
             }
 
             Log.i(TAG, "sendJavascript: " + send);

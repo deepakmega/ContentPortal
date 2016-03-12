@@ -6,13 +6,15 @@
     "start": "react-native start"
   },
   "dependencies": {
-    "parse": "^1.7.0",
+    "parse": "^1.7.1",
     "parse-react": "^0.5.0",
-    "react-native": "^0.18.0",
+    "react-native": "^0.21.0",
     "react-native-activity-view": "^0.2.8",
     "react-native-material-kit": "^0.2.5",
     "react-native-share": "^1.0.4",
     "react-native-vector-icons": "^1.0.4",
-    "react-timer-mixin": "^0.13.3"
+    "react-timer-mixin": "^0.13.3",
+    "apsl-react-native-button": "^2.4.2",
+    "react-native-scrollable-tab-view": "^0.4.0"
   }
 }

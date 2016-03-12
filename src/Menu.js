@@ -65,21 +65,21 @@ var Menu = React.createClass({
     ParseSubscribeChannel.subscribe(SubscribedCategoriesArray);
   },
 
-  toggleSubscription: function(categoryId, toggleState: Object){
+  toggleSubscription: function(subscriptionName, toggleState: Object){
     if(toggleState.checked === true){
-      if(!(SubscribedCategoriesArray.indexOf(categoryId) > -1)){
-        SubscribedCategoriesArray.push(categoryId);
+      if(!(SubscribedCategoriesArray.indexOf(subscriptionName) > -1)){
+        SubscribedCategoriesArray.push(subscriptionName);
       }
     }
     else {
-      if(SubscribedCategoriesArray.indexOf(categoryId) > -1){
-        SubscribedCategoriesArray.splice(SubscribedCategoriesArray.indexOf(categoryId),1);
+      if(SubscribedCategoriesArray.indexOf(subscriptionName) > -1){
+        SubscribedCategoriesArray.splice(SubscribedCategoriesArray.indexOf(subscriptionName),1);
       }
     }
   },
 
-  checkIfSubscribed: function(categoryId){
-    return (SubscribedCategoriesArray.indexOf(categoryId) > -1);
+  checkIfSubscribed: function(subscriptionName){
+    return (SubscribedCategoriesArray.indexOf(subscriptionName) > -1);
   },
 
   renderLoadingView: function() {
@@ -101,7 +101,7 @@ var Menu = React.createClass({
     var bindingData = this.data.listings.length > 0 ? this.data.listings : this.state.categories;
 
 	   return (
-  		<View>
+  		<View renderToHardwareTextureAndroid={true}>
         <View style={{marginTop: 50, padding: 30, flexDirection: 'column'}}>
           <View style={{padding: 5, paddingTop: 15}}>
             <Text style={{color: '#FFF', fontSize:24}}>Categories</Text>
@@ -115,7 +115,7 @@ var Menu = React.createClass({
                   <View key={category.CategoryId} style={{padding: 5, paddingTop: 15, paddingLeft: 15, paddingRight: 15, flexDirection: 'row', justifyContent: 'space-between'}}>
                     <Text style={styles.subText}><Icon name="face" style={{paddingRight: 10}} size={18}/>{category.Name}</Text>
                     <View style={{flex:1, flexDirection: 'row', justifyContent: 'flex-end', paddingRight:15}}>
-                      <MKIconToggle checked={this.checkIfSubscribed(category.CategoryId)} style={{width:0, height:0, }} onCheckedChange={(state) => {this.toggleSubscription(category.CategoryId, state)}}>
+                      <MKIconToggle checked={this.checkIfSubscribed(category.SubscriptionName)} style={{width:0, height:0, }} onCheckedChange={(state) => {this.toggleSubscription(category.SubscriptionName, state)}}>
                         <Text style={styles.subText, styles.toggleYes} pointerEvents="none">No</Text>
                         <Text style={styles.subText, styles.toggleNo} state_checked={true} pointerEvents="none">Yes</Text>
                       </MKIconToggle>

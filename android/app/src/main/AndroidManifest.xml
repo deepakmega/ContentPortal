@@ -1,28 +1,22 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.contentportal">
 
+    <!-- REQUIRED for Urban Airship -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <!--
-      IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
-      to match your app's package name + ".permission.C2D_MESSAGE".
-    -->
-    <permission android:protectionLevel="signature"
-        android:name="com.contentportal.permission.C2D_MESSAGE" />
-    <uses-permission android:name="com.contentportal.permission.C2D_MESSAGE" />
+    <!-- Keeps the processor from sleeping when a message is received. -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />  <!-- Required for Push -->
+
+
+
     <application
       android:allowBackup="true"
       android:label="@string/app_name"
       android:icon="@mipmap/ic_launcher"
       android:theme="@style/AppTheme"
       android:name="com.contentportal.MainApplication">
-        <meta-data android:name="com.parse.push.gcm_sender_id"
-            android:value="id:374648187866" />;
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -34,25 +28,21 @@
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
 
-        <service
-            android:name="com.contentportal.MessageReceivingService"
-            android:label="com.contentportal.MessageReceivingService" >
-            <intent-filter>
-                <action android:name="com.contentportal.ExternalReceiver" />
-            </intent-filter>
-        </service>
+        <!-- OPTIONAL, if you want to receive push, push opened and registration completed intents -->
+        <!-- Replace the receiver below with your package and class name -->
+        <receiver android:name=".ExternalReceiver"
+            android:exported="false">
 
-        <receiver
-            android:name="com.contentportal.ExternalReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <action android:name="com.google.android.c2dm.intent.REGISTER" />
+                <action android:name="com.urbanairship.push.CHANNEL_UPDATED" />
+                <action android:name="com.urbanairship.push.OPENED" />
+                <action android:name="com.urbanairship.push.RECEIVED" />
+                <action android:name="com.urbanairship.push.DISMISSED" />
 
-                <category android:name="com.amazonaws.androidtest" />
+                <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
     </application>
+
 
 </manifest>

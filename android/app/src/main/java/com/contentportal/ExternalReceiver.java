@@ -1,111 +1,97 @@
 package com.contentportal;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
+
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.NotificationCompat;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.urbanairship.push.BaseIntentReceiver;
+import com.urbanairship.push.PushMessage;
 
-import java.util.Random;
+/**
+ * Created by Deepak on 2/23/2016.
+ */
+public class ExternalReceiver extends BaseIntentReceiver {
 
-public class ExternalReceiver extends BroadcastReceiver {
+    private static final String TAG = "ExternalReceiver";
 
-    private static final String TAG = "GcmReceiver";
-    private static  Bundle gCachedExtras;
     public ExternalReceiver(){
         super();
     }
 
-    public void onReceive(Context context, Intent intent) {
-        if(intent!=null){
-            // Extract the payload from the message
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                // if we are in the foreground, just surface the payload, else post it to the statusbar
-                if (ParseGCMModule.isOnForeground()) {
-                    extras.putBoolean("foreground", true);
-                } else {
-                    extras.putBoolean("foreground", false);
-                    // Send a notification if there is a message
-                    //if (extras.getString("M") != null && extras.getString("M").length() != 0) {
-                    this.createNotification(context, extras);
-                    //}
-                }
-                ParseGCMModule.sendExtras(extras);
-            }
+    @Override
+    protected void onChannelRegistrationSucceeded(@NonNull Context context, @NonNull String channelId) {
+        Log.i(TAG, "Channel registration updated. Channel ID: " + channelId + ".");
+
+//        Intent intent = new Intent(UAirshipPlugin.ACTION_CHANNEL_REGISTRATION);
+//        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    @Override
+    protected void onChannelRegistrationFailed(@NonNull Context context) {
+        Log.i(TAG, "Channel registration failed.");
+
+//        Intent intent = new Intent(UAirshipPlugin.ACTION_CHANNEL_REGISTRATION)
+//                .putExtra(UAirshipPlugin.EXTRA_ERROR, true);
+//
+//        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    }
+
+    @Override
+    protected void onPushReceived(@NonNull Context context, @NonNull PushMessage pushMessage, int notificationId) {
+        Log.i(TAG, "Received push notification. Alert: " + pushMessage.getAlert() + ". Notification ID: " + notificationId);
+
+        String message = pushMessage.getAlert();
+
+        Bundle bundle = pushMessage.getPushBundle();
+
+//        Intent intent = new Intent(UAirshipPlugin.ACTION_PUSH_RECEIVED)
+//                .putExtra(UAirshipPlugin.EXTRA_PUSH, message)
+//                .putExtra(UAirshipPlugin.EXTRA_NOTIFICATION_ID, notificationId);
+//
+//        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+
+        if(bundle!=null){
+            ParseGCMModule.sendExtras(bundle);
+        }
+
+    }
+
+    @Override
+    protected void onBackgroundPushReceived(@NonNull Context context, @NonNull PushMessage pushMessage) {
+        Log.i(TAG, "Received background push message: " + pushMessage);
+
+//        Intent intent = new Intent(UAirshipPlugin.ACTION_PUSH_RECEIVED)
+//                .putExtra(UAirshipPlugin.EXTRA_PUSH, message);
+//
+//        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        Bundle bundle = pushMessage.getPushBundle();
+
+        if(bundle!=null){
+            ParseGCMModule.sendExtras(bundle);
         }
     }
 
-    public void createNotification(Context context, Bundle extras)
-    {
-        NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        String appName = getAppName(context);
+    @Override
+    protected boolean onNotificationOpened(@NonNull Context context, @NonNull PushMessage pushMessage, int i) {
+        Log.i(TAG, "User clicked notification. Alert: " + pushMessage.getAlert());
 
-        String packageName = context.getPackageName();
-        Intent launchIntent = context.getPackageManager().getLaunchIntentForPackage(packageName);
-        Class className = launchIntent.getComponent().getClass();
-
-        Intent notificationIntent =  context.getPackageManager().getLaunchIntentForPackage(packageName);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        notificationIntent.putExtra("pushBundle", extras);
-
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        int defaults = Notification.DEFAULT_ALL;
-
-        if (extras.getString("defaults") != null) {
-            try {
-                defaults = Integer.parseInt(extras.getString("defaults"));
-            } catch (NumberFormatException e) {}
+//        UAirshipPlugin.launchPushMessage = message;
+//        UAirshipPlugin.launchNotificationId = notificationId;
+        Bundle bundle = pushMessage.getPushBundle();
+        if(bundle!=null){
+            ParseGCMModule.sendExtras(bundle);
         }
-
-        String message = extras.getString("message");
-
-        NotificationCompat.Builder mBuilder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(context)
-                        .setDefaults(defaults)
-                        .setSmallIcon(context.getApplicationInfo().icon)
-                        .setWhen(System.currentTimeMillis())
-                        .setContentTitle(context.getString(context.getApplicationInfo().labelRes))
-                        .setContentIntent(contentIntent)
-                        .setAutoCancel(true);
-
-        if (message != null) {
-            mBuilder.setContentText(message);
-        } else {
-            mBuilder.setContentText("New article has arrived.");
-        }
-
-        int notId = 0;
-
-        try {
-            notId = new Random().nextInt();
-        }
-        catch(NumberFormatException e) {
-            Log.e(TAG, "Number format exception - Error parsing Notification ID: " + e.getMessage());
-        }
-        catch(Exception e) {
-            Log.e(TAG, "Number format exception - Error parsing Notification ID" + e.getMessage());
-        }
-
-        mNotificationManager.notify(appName, notId, mBuilder.build());
+        return false;
     }
 
+    @Override
+    protected boolean onNotificationActionOpened(@NonNull Context context, @NonNull PushMessage pushMessage, int notificationId, @NonNull String buttonId, boolean isForeground) {
+        Log.i(TAG, "User clicked notification button. Button ID: " + buttonId + " Alert: " + pushMessage.getAlert());
 
-    private static String getAppName(Context context)
-    {
-        CharSequence appName =
-                context
-                        .getPackageManager()
-                        .getApplicationLabel(context.getApplicationInfo());
+//        UAirshipPlugin.launchPushMessage = message;
+//        UAirshipPlugin.launchNotificationId = notificationId;
 
-        return (String)appName;
+        return false;
     }
 }
-

@@ -14,6 +14,8 @@ var {
 } = React;
 
 var MaterialKit = require('react-native-material-kit');
+var Icon = require('react-native-vector-icons/MaterialIcons');
+
 const {
   MKButton,
   MKColor,
@@ -89,6 +91,13 @@ var StoryScreen = React.createClass({
     var reqUrl = this.props.story.content_url;
     return (
       <View style={styles.container}>
+        <View style={styles.topMenuContainer} ref='_topMenu'>
+          <Icon name="navigate-before" style={{marginLeft: 10,textAlign:'center',color:'#ECAA5B'}}  onPress={this._onPressBackButton} size={30}/>
+          <Text style={{color:'#ECAA5B',fontFamily:'Roboto', fontWeight:'bold'}}>THINKING THOUGHTS</Text>
+          <View style={{justifyContent: 'space-between' ,flexDirection: 'row'}}>
+            
+          </View>
+        </View>
         <MyWebView
           startInLoadingState={true}
           style={styles.content}
@@ -96,26 +105,6 @@ var StoryScreen = React.createClass({
           onScrollChange={this.onWebViewScroll}
           renderLoading={this.renderLoadingView}
           />
-        <View style={styles.toolbar}>
-          <View style={{padding:7, width: 80}}>
-            <MKButton
-              backgroundColor={MKColor.Teal}
-              shadowRadius={2}
-              shadowOffset={{width:0, height:2}}
-              shadowOpacity={.7}
-              shadowColor="black"
-              onPress={this._onPressBackButton}
-              style={{height:40}}
-              >
-              <View style={{padding:7}}>
-              <Text pointerEvents="none"
-                    style={{color: 'white', fontWeight: 'bold', textAlign: 'center'}}>
-                Back
-              </Text>
-              </View>
-            </MKButton>
-          </View>
-        </View>
       </View>
     );
   },
@@ -126,25 +115,6 @@ var StoryScreen = React.createClass({
   //       </View>
   //   </View>
   // </TouchableElement>
-  renderVideoControl() {
-    var TouchableElement = TouchableHighlight;
-    if (Platform.OS === 'android') {
-      TouchableElement = TouchableNativeFeedback;
-    }
-    return (
-      <View style={styles.container}>
-        <View style={styles.toolbar}>
-          <TouchableElement onPress={this._onPressBackButton}>
-            <View style={styles.actionsContainer}>
-                <View style={styles.actionItem}>
-                  <Text style={styles.title}>Back</Text>
-                </View>
-            </View>
-          </TouchableElement>
-        </View>
-      </View>
-    );
-  },
 
   render: function() {
     return (
@@ -156,14 +126,6 @@ var StoryScreen = React.createClass({
 });
 
 var styles = StyleSheet.create({
-  toolbar: {
-    height: 56,
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    top: 0,
-  },
   titleContainer: {
     flex: 1,
     alignSelf: 'flex-end',
@@ -178,15 +140,22 @@ var styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: '#F5FCFF',
+    justifyContent: 'center',
+    backgroundColor: '#21212C',
+    borderRadius: 8,
+    borderColor: '#000000'
+  },
+  topMenuContainer:{
+    backgroundColor: 'transparent',
+    flex: .08,
+    justifyContent: 'space-between',
+    borderRadius: 8,
+    alignItems: 'center',
+    flexDirection: 'row'
   },
   content: {
     flex: 1,
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    top:56,
+    backgroundColor: '#21212C',
   },
   actionsContainer: {
     height: 56,

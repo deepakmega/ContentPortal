@@ -40,10 +40,14 @@ var LoadingIndicator = require('./utils/loading');
 var ConnectinInfo = require('./utils/connectionInfo');
 var mod = require('./utils/ParseGCMModule');
 var Share = (Platform.OS === 'ios') ? require('react-native-activity-view') : require('react-native-share');
+var ScrollableTabView = require('react-native-scrollable-tab-view');
+
 var LinkIntent = (Platform.OS === 'ios') ? LinkingIOS : IntentAndroid;
 var ParseGCMModule = new mod();
 const {getFontSize} = require('./utils/utils');
 import {fonts, scalingFactors} from './utils/fonts';
+import Button from 'apsl-react-native-button'
+
 var Config = new confModule();
 Parse.serverURL = Config.PARSEURL;
 Parse.initialize(
@@ -58,34 +62,12 @@ var MainScreen = React.createClass({
   getInitialState: function() {
     StorageHelper.get("posts").then((value) =>{
           this.setState({"posts": value});
-          if(value.length > 0){
-            this.setState({"lastReadPostID": value[value.length-1].postId})
-          }
     });
 
     if(Platform.OS==='ios'){
       //this.setState({"currentAppState": AppStateIOS.currentState});
     }
     else{
-        ParseAndroidModule.registerDevice(
-          (errMsg) => {
-            console.log(errMsg);
-          },
-          (deviceToken) => {
-            console.log(deviceToken);
-            Parse.Cloud.run('createGCMPlatformEndpoint', { "deviceToken": deviceToken })
-              .then(function(response) {
-                if(response["code"] == 141) {
-                    console.log(response);
-                }
-                else {
-                  console.log("Registered in SNS: " + response);
-                  StorageHelper.save("deviceEndpointARN", response);
-                }
-            });
-
-            StorageHelper.save("deviceToken", deviceToken);
-          });
     }
 
     return {
@@ -181,9 +163,9 @@ var MainScreen = React.createClass({
   onNotification: function(data){
     var jsonData = JSON.stringify(data);
     console.log("Received notification: " + jsonData);
-    var response = JSON.parse(jsonData).payload;
-    var message = response["message"];
-    var postId = response["postId"];
+
+    var message = data["payload"]["com.urbanairship.push.ALERT"];
+    var postId = data["payload"]["postId"];
 
     console.log("Message: " + message + " PostId: " + postId);
     //TODO: ios
@@ -209,13 +191,18 @@ var MainScreen = React.createClass({
     this.refs._scrollPager.scrollTo(x, y, false);
   },
   componentDidUpdate(){
+    console.log("componentDidUpdate");
+    this.receiveDataCallback();
+  },
+  receiveDataCallback: function(){
     if(this.data.listings.length>0){
         StorageHelper.save("posts", this.data.listings);
+        console.log("ComponentDidUpdate Called " + this.state.notificationPostId);
         var notificationPostId = parseInt(this.state.notificationPostId);
-        console.log("NotifictionPostID");
-        console.log(this.state.notificationPostId);
-        console.log(notificationPostId);
+        console.log("NotifictionPostID: " + this.state.notificationPostId);
+        console.log("Has notification: " + this.state.hasNotification);
         var pageNo = this.getInitPageNumber(notificationPostId);
+        console.log("Page number: " + pageNo);
         if(this.state.hasNotification && notificationPostId > -1){
           if(Platform.OS==='ios'){
             console.log("ScrollToPage start");
@@ -234,19 +221,14 @@ var MainScreen = React.createClass({
       }
     }
   },
+  receivedData: function() {
+    //this.receiveDataCallback();
+  },
   render: function() {
     if ( !this.pendingQueries().length == 0 ) {
       return this.renderLoadingView();
     }
 
-    var scaled = StyleSheet.create({
-      normal: {
-        fontSize: WindowSize.width / scalingFactors.normal
-      },
-      heading: {
-        fontSize: WindowSize.width / scalingFactors.heading
-      }
-    });
 
     var bindingData = this.data.listings.length > 0 ? this.data.listings : this.state.posts;
     // TODO: add no posts card if both are emtpy.
@@ -265,33 +247,48 @@ var MainScreen = React.createClass({
     <View style={styles.container}>
 
         <View style={styles.topMenuContainer} ref='_topMenu'>
-          <Icon name="menu" style={{marginLeft: 10,textAlign:'center',}}  onPress={()=>{this.toggleMenu()}} size={26}/>
+          <Icon name="menu" style={{marginLeft: 10,textAlign:'center',color:'#ECAA5B'}}  onPress={()=>{this.toggleMenu()}} size={30}/>
+          <Text style={{color:'#ECAA5B',fontFamily:'Roboto', fontWeight:'bold'}}>THINKING THOUGHTS</Text>
           <View style={{justifyContent: 'space-between' ,flexDirection: 'row'}}>
-            <Icon name="skip-previous" style={{paddingRight: 20}} onPress={()=>{this.scrollToFirst()}} size={26} />
-            <Icon name="more-vert" style={{paddingRight: 10}} size={26}/>
+            <Icon name="skip-previous" style={{paddingRight: 20,color:'#ECAA5B'}} onPress={()=>{this.scrollToFirst()}} size={30} />
           </View>
         </View>
 
         <View style={{flex:1}}>
+        <ScrollableTabView>
+          <View id='test0' tabLabel="React" >
           <ScrollPager ref='_scrollPager' initialPage={initialPageNo} style={{flex:1}} showsHorizontalScrollIndicator={false} pagingEnabled={true} horizontal={true}>
             {
               bindingData.map(function(story: Object){
                 return (
-                  <View key={story.objectId} style={{flex:1,width: WindowSize.width, height: WindowSize.height-40}}>
-                    <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri:story.image_url}}/>
-                    <View style={styles.textContainer}>
-                        <Text style={[styles.title, fonts.heading, scaled.heading]} numberOfLines={1}>
+                  <View key={story.objectId} style={{flex:1,width: WindowSize.width, height: WindowSize.height-40}} renderToHardwareTextureAndroid={true}>
+                    <Image style={styles.image} resizeMode={Image.resizeMode.cover} source={{uri:story.image_url}}>
+                      <View style={styles.titleContainer}>
+                        <Text style={styles.titleHost} numberOfLines={1}>
+                          {story.content_host}
+                        </Text>
+                        <Text style={styles.title} numberOfLines={2}>
                           {story.title}
                         </Text>
-                      <Text style={[styles.text, fonts.normal, scaled.normal]}  numberOfLines={10}>
+                      </View>
+                    </Image>
+                    <View style={styles.textContainer}>
+                      <Text style={[styles.text]}  numberOfLines={9}>
                         {story.content}
                       </Text>
+                      <Text style= {{color:'#ECAA5B',paddingBottom:5}}>by {story.authorName}</Text>
                     </View>
-                    <View style= {{flex: .1, padding: 10}}>
-                      <View style= {{borderTopWidth:1, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:10, paddingRight:10}}>
-                        <Text>By: {story.authorName}</Text>
-                        <Text  onPress={()=>{this.selectStory(story)}} style={{color: '#07c'}}>more at {story.content_host}</Text>
-                        <Icon name="share" style={{paddingRight: 10}} size={24} onPress={()=>{this.onShare(story)}}/>
+                    <View style= {{flex: .2, padding: 10}}>
+                      <View style= {{borderTopWidth:0, flexDirection: 'row', justifyContent: 'space-between', padding: 5, paddingLeft:15, paddingRight:15}}>
+                        <Icon.Button name="favorite" iconStyle={{color:'#ECAA5B'}} style={styles.buttonStyle} onPress={this.loginWithFacebook}>
+                           <Text style={styles.buttonText}>LIKE</Text>
+                        </Icon.Button>
+                        <Icon.Button name="import-contacts" iconStyle={{color:'#ECAA5B'}} style={styles.buttonStyle} onPress={()=>{this.selectStory(story)}}>
+                           <Text style={styles.buttonText}>OPEN</Text>
+                        </Icon.Button>
+                        <Icon.Button name="share" iconStyle={{color:'#ECAA5B'}} style={styles.buttonStyle}  onPress={()=>{this.onShare(story)}}>
+                           <Text style={styles.buttonText}>SHARE</Text>
+                        </Icon.Button>
                       </View>
                     </View>
                   </View>
@@ -299,7 +296,8 @@ var MainScreen = React.createClass({
               }, this)
             }
           </ScrollPager>
-
+          </View>
+  </ScrollableTabView>
           <Animated.View style={[styles.toggleMenu, {height: this.state.menuHeight}]} >
             <MenuScreen onDone={this.toggleMenu}/>
           </Animated.View>
@@ -312,7 +310,7 @@ var MainScreen = React.createClass({
     return (
       <View style= {[styles.container, {alignItems: 'center'}]}>
         <LoadingIndicator ref="loadingControl"/>
-        <Text>
+        <Text style={{color:'#ECAA5B'}}>
           Thinking thoughts...
         </Text>
       </View>
@@ -372,27 +370,48 @@ var styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#21212C',
     borderRadius: 8,
     borderColor: '#000000'
   },
   textContainer: {
     flex: 1,
-    paddingLeft: 20,
-    paddingRight: 20,
+    paddingLeft: 30,
+    paddingRight: 30,
+    flexDirection:'column',
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    marginTop: 15,
+    fontSize: 22,
+    lineHeight:28,
+    marginBottom: 15,
+    color: '#FFFFFF',
+    fontFamily:'Montserrat-Regular'
+  },
+  titleHost:{
+    marginTop:10,
+    fontSize: 12,
+    textAlign: 'left',
+    color: '#FFFFFF',
+    fontFamily:'Montserrat-Regular',
+    fontWeight:'normal'
+  },
+  titleContainer: {
+    flex: 1,
+    alignSelf: 'flex-end',
+    flexDirection:'column',
+    paddingLeft: 30,
+    paddingRight: 30,
+    backgroundColor: 'rgba(33,33,44,0.8)',
   },
   text: {
     fontSize: 12,
     textAlign: 'left',
-    color: '#141414',
+    color: '#FFFFFF',
     marginBottom: 5,
     marginTop: 15,
+    fontFamily:'Montserrat-Light',
+    lineHeight:22,
+    fontWeight:'normal'
   },
   buttonContainer: {
     bottom: 0,
@@ -406,9 +425,11 @@ var styles = StyleSheet.create({
     justifyContent: 'center',
   },
   image: {
-    margin:3,
+    marginLeft:3,
+    marginRight:3,
     flex: 1, height: 200,
-    borderRadius: 4
+    borderRadius: 4,
+    flexDirection: 'row'
   },
   scrollView: {
     backgroundColor: '#6A85B1',
@@ -419,7 +440,7 @@ var styles = StyleSheet.create({
   },
   topMenuContainer:{
     backgroundColor: 'transparent',
-    flex: .05,
+    flex: .08,
     justifyContent: 'space-between',
     borderRadius: 8,
     alignItems: 'center',
@@ -435,6 +456,18 @@ var styles = StyleSheet.create({
     opacity:0.95,
     padding:0,
     overflow:'hidden'
+  },
+  buttonStyle: {
+    borderColor: 'white',
+    backgroundColor: '#21212C',
+    borderRadius: 5,
+    borderWidth: 1,
+  },
+  buttonText:{
+    fontSize: 12,
+    textAlign: 'center',
+    color:'white',
+    fontFamily:'Montserrat-Regular',
   }
 });
 
